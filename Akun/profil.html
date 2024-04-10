@@ -13,16 +13,24 @@
             background-color: #f2f2f2;
         }
 
-        .container {
-            max-width: 400px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);           
-            margin-top: 45%;
-            
-        }
+       .container {
+    max-width: 400px;
+    width: 84%;
+    margin: auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex; /* Menjadikan container flex container */
+    flex-direction: column; /* Menjadikan child elements berada dalam satu kolom */
+    justify-content: center; /* Menengahkan secara horizontal */
+    align-items: center; /* Menengahkan secara vertikal */
+    position: absolute; /* Mengubah posisi menjadi absolut */
+    top: 50%; /* Menempatkan di tengah vertikal */
+    left: 50%; /* Menempatkan di tengah horizontal */
+    transform: translate(-50%, -50%); /* Menggeser posisi ke tengah */
+}
+
 
        .save {
    background-color: 8px
@@ -265,11 +273,11 @@ font-size: 16px;
     <div class="progress-bar-fill"></div>
 </div>
 
+<!-- Tombol navigasi -->
 <div class="navigation"> <a href="javascript:history.back()" id="login-button">
-    <i class="fas fa-sign-in-alt"></i></a> <a href="index.html" id="gift-button">
-        <i class="fas fa-home"></i></a> <a href="profil.html" id="profile-button">
-            <i class="fas fa-user"></i></a> </div>
-            
+    <i class="fas fa-sign-in-alt"></i></a> <a href="https://toko-privat-github-io.vercel.app" id="gift-button">
+        <i class="fas fa-home"></i></a> <a href="https://toko-privat-github-io.vercel.app/Akun/hadiah.html" id="gift-button">
+        <i class="fas fa-gift"></i></a> </div>
 
 <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
