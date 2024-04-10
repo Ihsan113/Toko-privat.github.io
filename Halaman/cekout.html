@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informasi Produk</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: black;
+            padding: 10px;
+            text-align: center;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+
+        .product-info img {
+            width: 100px;
+            margin-right: 20px;
+        }
+
+        .product-info h3 {
+            margin: 0;
+        }
+
+        .product-info p {
+            margin: 5px 0;
+        }
+
+        .total {
+            font-weight: bold;
+            margin-top: 20px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .buy-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            margin-top: 3px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            
+        }
+
+        .buy-button:hover {
+            background-color: #0056b3;
+        }
+
+        .verification-code {
+            margin-top: 20px;
+            display: none;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .verification-code label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .verification-code input[type="text"] {
+            width: 80%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        .verification-code button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            
+        }
+
+        .verification-code button:hover {
+            background-color: #0056b3;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .success-message {
+            color: green;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+        
+         .navigation {
+    position: fixed;
+    bottom: 5px; /* Ubah jarak dari bawah sesuai kebutuhan */
+    left: 50%; /* Posisikan di tengah */
+    transform: translateX(-50%); /* Geser sejauh setengah lebar elemen */
+    width: 300px; /* Lebarkan sesuai konten */
+    height: 45px;
+    background-color: #000000df;
+    display: flex;
+    justify-content: space-between;
+    padding: 0px;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    border-radius: 9px;
+}
+
+.navigation button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    padding: 0 35px; /* Tambahkan padding ke kiri dan kanan */
+    color: white; /* Ubah warna teks menjadi putih */
+}
+
+.navigation a { 
+color: white; 
+text-decoration: none; 
+display: flex; 
+align-items: center; 
+justify-content: center; 
+padding: 0 35px; 
+cursor: pointer; 
+} 
+.navigation a i { 
+font-size: 20px; 
+}
+    
+
+.loading-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%); /* Memindahkan elemen ke tengah */
+    background-color: rgba(0, 0, 0, 0.5); /* Warna hitam dengan opasitas 50% */
+    z-index: 9999;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+}
+
+.atom {
+    position: relative;
+    width: 40px;
+    height: 40px;
+}
+
+.dot {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    animation: orbit 2s linear infinite, spin 2s linear infinite, pulse 2s ease-in-out infinite;
+}
+
+.dot:nth-child(1) {
+    top: calc(50% - 40px);
+    left: calc(50% - 10px);
+    transform-origin: center center;
+    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+}
+
+.dot:nth-child(2) {
+    top: calc(50% + 20px);
+    left: calc(50% - 10px);
+    transform-origin: center center;
+    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+}
+
+.dot:nth-child(3) {
+    top: calc(50% - 10px);
+    left: calc(50% - 40px);
+    transform-origin: center center;
+    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+}
+
+.dot:nth-child(4) {
+    top: calc(50% - 10px);
+    left: calc(50% + 20px);
+    transform-origin: center center;
+    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+}
+
+@keyframes orbit {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+    </style>
+</head>
+<body>
+<header>
+    <h2>Cek out</h2>
+</header>
+
+<div id="loading-overlay" class="loading-overlay">
+    <div class="atom"> <div class="dot"></div> <div class="dot"></div> <div class="dot"></div> <div class="dot"></div>
+    
+    
+</div>
+
+</div>
+
+<div class="container" id="product-info-container">
+    <!-- Informasi produk akan ditampilkan di sini -->
+</div>
+
+<div class="total" id="total-container">
+    <!-- Total produk, total harga, dan total poin akan ditampilkan di sini -->
+</div>
+<center>
+    <div class="verification-code" id="verification-code-container" style="display: none;">
+        <label for="verification-code-input">Masukkan Kode Verifikasi: Minta kode ke kasir 😅</label>
+        <input type="text" id="verification-code-input">
+        <button id="confirm-button">Konfirmasi</button>
+        <div class="loading" id="loading-indicator" style="display: none;">Mengirim poin...</div>
+        <div class="error-message" id="error-message">Kode verifikasi salah. Silakan coba lagi.</div>
+        <div class="success-message" id="success-message" style="display: none;">Poin berhasil dikirim ke Firebase. <button id="continue-button">Lanjutkan</button></div>
+    </div>
+  
+    <button class="buy-button" id="buy-button">Beli</button>
+    
+    <h4>Hak Cipta ©Sanz113 | 2024</h4>
+</center>
+<!-- Tombol navigasi -->
+<div class="navigation"> <a href="javascript:history.back()" id="login-button">
+    <i class="fas fa-sign-in-alt"></i></a> <a href="index.html" id="gift-button">
+        <i class="fas fa-home"></i></a> <a href="profil.html" id="profile-button">
+            <i class="fas fa-user"></i></a> </div>
+            
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+        authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+        projectId: "toko-online-ku-8be4a",
+        storageBucket: "toko-online-ku-8be4a.appspot.com",
+        messagingSenderId: "714682286460",
+        appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+        measurementId: "G-7RS1N1FT8Z"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+  
+    // Tambahkan listener untuk menangani perubahan status otentikasi pengguna
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            const userId = user.uid;
+            const userCartRef = firebase.firestore().collection('carts').doc(userId);
+
+            userCartRef.get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        const cartData = doc.data();
+                        displayProductInfo(cartData.products);
+                        displayTotalInfo(cartData.products);
+                    } else {
+                        console.log("No such document!");
+                    }
+                })
+                .catch((error) => {
+                    console.log("Error getting document:", error);
+                });
+        } else {
+            console.error("No user is signed in.");
+        }
+    });
+
+    // Fungsi untuk menampilkan informasi produk
+    function displayProductInfo(products) {
+        const productInfoContainer = document.getElementById("product-info-container");
+        products.forEach(product => {
+            const productInfo = document.createElement("div");
+            productInfo.classList.add("product-info");
+            productInfo.innerHTML = `
+                <img src="${product.image}" alt="${product.name}">
+                <div>
+                    <h3>${product.name}</h3>
+                    <p>Price: $${product.price.toFixed(2)}</p>
+                    <p>Bonus Points: ${product.bonusPoints}</p>
+                    <p>Quantity: ${product.quantity}</p>
+                </div>
+            `;
+            productInfoContainer.appendChild(productInfo);
+        });
+    }
+
+    // Fungsi untuk menampilkan total produk, total harga, dan total poin
+    function displayTotalInfo(products) {
+        let totalProducts = 0;
+        let totalPrice = 0;
+        let totalPoints = 0;
+
+        products.forEach(product => {
+            totalProducts += product.quantity;
+            totalPrice += product.price * product.quantity;
+            totalPoints += product.bonusPoints * product.quantity;
+        });
+
+        const totalContainer = document.getElementById("total-container");
+        totalContainer.innerHTML = `
+            <p>Total Produk: ${totalProducts}</p>
+            <p>Total Harga: $${totalPrice.toFixed(2)}</p>
+            <p>Total Poin: ${totalPoints}</p>
+        `;
+
+        // Perbarui poin pengguna di Firebase Firestore
+        updatePoints(totalPoints);
+    }
+
+    // Fungsi untuk memperbarui poin pengguna di Firebase Firestore
+function updatePoints(points) {
+    const userId = firebase.auth().currentUser.uid;
+    const userRef = firebase.firestore().collection('profiles').doc(userId);
+
+    return userRef.get()
+        .then((doc) => {
+            if (doc.exists) {
+                // Jika dokumen profil pengguna sudah ada, lanjutkan dengan memperbarui poin
+                const userData = doc.data();
+                const currentPoints = userData.points || 0;
+                const updatedPoints = currentPoints + points;
+
+                // Update poin pengguna di dokumen profil mereka
+                return userRef.update({ points: updatedPoints })
+                    .then(() => {
+                        console.log("User points updated successfully.");
+                    })
+                    .catch((error) => {
+                        console.error("Error updating user points:", error);
+                    });
+            } else {
+                // Jika dokumen profil pengguna belum ada, buat profil baru dengan poin yang diterima
+                return userRef.set({ points: points })
+                    .then(() => {
+                        console.log("New user profile created with points.");
+                    })
+                    .catch((error) => {
+                        console.error("Error creating new user profile:", error);
+                    });
+            }
+        })
+        .catch((error) => {
+            console.error("Error getting user profile:", error);
+            // Logika untuk menangani kesalahan saat mengambil profil pengguna
+            // Misalnya, menampilkan pesan kesalahan kepada pengguna
+        });
+}
+
+
+    // Tombol Beli
+    const buyButton = document.getElementById("buy-button");
+    buyButton.addEventListener("click", () => {
+        document.getElementById("verification-code-container").style.display = "block";
+    });
+
+    // Tombol Konfirmasi
+    const confirmButton = document.getElementById("confirm-button");
+    confirmButton.addEventListener("click", () => {
+        const verificationCode = document.getElementById("verification-code-input").value;
+        const verificationCodeRef = firebase.firestore().collection('tokens').where('verificationCode', '==', verificationCode);
+
+        const loadingIndicator = document.getElementById("loading-indicator");
+        const errorMessage = document.getElementById("error-message");
+        const successMessage = document.getElementById("success-message");
+
+        loadingIndicator.style.display = "block"; // Tampilkan indikator loading
+
+        verificationCodeRef.get()
+            .then((querySnapshot) => {
+                if (!querySnapshot.empty) {
+                    const doc = querySnapshot.docs[0];
+                    const storedVerificationCode = doc.data().verificationCode;
+
+                    if (verificationCode === storedVerificationCode) {
+                        const userCartRef = firebase.firestore().collection('carts').doc(firebase.auth().currentUser.uid);
+
+                        // Dapatkan produk dari keranjang pengguna
+                        userCartRef.get()
+                            .then((cartDoc) => {
+                                const cartData = cartDoc.data();
+                                const products = cartData.products || [];
+
+                                // Hitung total poin yang akan dikirim
+                                const totalPoints = calculateTotalPoints(products);
+
+                                // Kirim poin ke dokumen profil pengguna
+                                updatePoints(totalPoints)
+                                    .then(() => {
+                                        // Setelah poin berhasil dikirim, hapus produk dari keranjang
+                                        userCartRef.update({ products: [] })
+                                            .then(() => {
+                                                // Hapus token verifikasi
+                                                doc.ref.delete()
+                                                    .then(() => {
+                                                        successMessage.style.display = "block"; // Tampilkan pesan sukses
+                                                    })
+                                                    .catch((error) => {
+                                                        console.error("Error deleting verification token:", error);
+                                                    });
+                                            })
+                                            .catch((error) => {
+                                                console.error("Error deleting products from cart:", error);
+                                            });
+                                    })
+                                    .catch((error) => {
+                                        console.error("Error updating user points:", error);
+                                    });
+                            })
+                            .catch((error) => {
+                                console.error("Error getting cart document:", error);
+                            });
+                    } else {
+                        errorMessage.style.display = "block"; // Tampilkan pesan kesalahan untuk kode verifikasi yang tidak valid
+                    }
+                } else {
+                    errorMessage.style.display = "block"; // Tampilkan pesan kesalahan untuk snapshot query kosong
+                }
+            })
+            .catch((error) => {
+                console.error("Error getting verification code document:", error);
+            })
+            .finally(() => {
+                loadingIndicator.style.display = "none"; // Sembunyikan indikator loading setelah proses selesai
+            });
+    });
+
+    // Tombol Lanjutkan
+    const continueButton = document.getElementById("continue-button");
+    continueButton.addEventListener("click", () => {
+        window.location.href = "selamat.html"; // Redirect ke halaman terima kasih
+    });
+
+    // Fungsi untuk menghitung total poin berdasarkan produk di keranjang
+    function calculateTotalPoints(products) {
+        let totalPoints = 0;
+        // Iterasi melalui produk dan hitung total poin
+        products.forEach(product => {
+            totalPoints += product.bonusPoints * product.quantity;
+        });
+        return totalPoints;
+    }
+
+ <!-- loading -->
+document.addEventListener("DOMContentLoaded", function() {
+    const loadingOverlay = document.querySelector(".loading-overlay"); // Menggunakan selector yang sesuai
+    loadingOverlay.style.display = "flex"; // Menggunakan display: flex untuk kontainer loading
+
+    setTimeout(function() {
+        loadingOverlay.style.display = "none"; // Sembunyikan overlay setelah 3 detik
+    }, 3000); // Waktu dalam milidetik (3 detik)
+});
+</script>
+</body>
+</html>
+
+

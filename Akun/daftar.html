@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Pendaftaran Akun</title>
+    <!-- Tambahkan skrip Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
+    <!-- Konfigurasi Firebase Anda -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+            authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+            projectId: "toko-online-ku-8be4a",
+            storageBucket: "toko-online-ku-8be4a.appspot.com",
+            messagingSenderId: "714682286460",
+            appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+            measurementId: "G-7RS1N1FT8Z"
+        };
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    <style>
+        /* Gaya untuk container */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Gaya untuk form */
+        .form {
+            width: 400px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Gaya untuk input */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        /* Gaya untuk tombol */
+        button[type="submit"],
+        button[type="button"] {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover,
+        button[type="button"]:hover {
+            background-color: #0056b3;
+        }
+
+        /* Gaya untuk label */
+        label {
+            font-weight: bold;
+        }
+
+        /* Gaya untuk tombol login */
+        .login-button {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .login-button a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .login-button a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form class="form" id="registration-form">
+            <center><h2>Daftar dan Login</h2></center>
+            <div class="form-group">
+                <label for="name">Nama:</label><br>
+                <input type="text" id="name" name="name" required><br>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label><br>
+                <input type="email" id="email" name="email" required><br>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Sandi:</label><br>
+                <input type="password" id="password" name="password" required><br>
+            </div>
+
+            <button type="submit">Daftar dengan Email</button>
+            <button type="button" id="google-signup">Daftar dengan Google</button>
+
+            <div class="login-button">
+                <span>Sudah punya akun? <a href="login.html">Login disini</a></span>
+            </div>
+        </form>
+    </div>
+
+    <!-- Skrip untuk menangani pendaftaran akun dengan email -->
+   <script>
+    const registrationForm = document.getElementById('registration-form');
+
+    registrationForm.addEventListener('submit', (event) => {
+        event.preventDefault(); // Hindari pengiriman formulir default
+
+        // Dapatkan nilai input
+        const name = registrationForm['name'].value;
+        const email = registrationForm['email'].value;
+        const password = registrationForm['password'].value;
+
+        // Daftar akun dengan Firebase Authentication menggunakan email dan sandi
+        firebase.auth().createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                // Daftar berhasil, tambahkan nama ke profil pengguna
+                const user = userCredential.user;
+                user.updateProfile({
+                    displayName: name
+                }).then(() => {
+                    // Tampilkan pesan sukses
+                    alert('Pendaftaran berhasil. Selamat datang, ' + name + '!');
+                    // Reset formulir
+                    registrationForm.reset();
+                    // Arahkan ke halaman index.html
+                    window.location.href = "index.html";
+                }).catch((error) => {
+                    console.error(error);
+                });
+            })
+            .catch((error) => {
+                // Tangani kesalahan pendaftaran
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                alert(errorMessage);
+            });
+    });
+</script>
+
+<!-- Skrip untuk menangani pendaftaran akun dengan Google -->
+<script>
+    const googleSignUpButton = document.getElementById('google-signup');
+
+    googleSignUpButton.addEventListener('click', () => {
+        // Inisiasi proses pendaftaran dengan Google
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider)
+            .then((result) => {
+                // Daftar berhasil, tampilkan nama pengguna
+                const user = result.user;
+                alert('Pendaftaran berhasil. Selamat datang, ' + user.displayName + '!');
+                // Arahkan ke halaman index.html
+                window.location.href = "index.html";
+            })
+            .catch((error) => {
+                // Tangani kesalahan pendaftaran
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                alert(errorMessage);
+            });
+    });
+</script>
+</body>
+</html>

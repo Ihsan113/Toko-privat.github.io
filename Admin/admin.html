@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Buat Token Verifikasi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #f2f2f2;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .token-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .token-item button {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Admin - Buat Token Verifikasi</h1>
+</header>
+
+<div class="container">
+    <form id="verification-token-form">
+        <div class="form-group">
+            <label for="verification-code">Token Verifikasi:</label>
+            <input type="text" id="verification-code" name="verification-code" required>
+        </div>
+        <button type="submit">Buat Token</button>
+        <br>
+        <br>
+    </form>
+    <div id="token-list"></div> <!-- Elemen untuk menampilkan daftar token -->
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+
+<script>
+    // Initialize Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+        authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+        projectId: "toko-online-ku-8be4a",
+        storageBucket: "toko-online-ku-8be4a.appspot.com",
+        messagingSenderId: "714682286460",
+        appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+        measurementId: "G-7RS1N1FT8Z"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const db = firebase.firestore();
+    const verificationTokenForm = document.getElementById("verification-token-form");
+    const tokenList = document.getElementById("token-list");
+
+    verificationTokenForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const verificationCode = document.getElementById("verification-code").value;
+
+        // Simpan token verifikasi ke Firestore
+        saveVerificationToken(verificationCode);
+    });
+
+    function saveVerificationToken(verificationCode) {
+        // Menambahkan dokumen baru dengan token verifikasi
+        db.collection('tokens').add({
+            verificationCode: verificationCode,
+            created_at: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then((docRef) => {
+            console.log("Token verifikasi berhasil disimpan dengan ID:", docRef.id);
+            alert("Token verifikasi berhasil disimpan dengan ID: " + docRef.id);
+            // Perbarui daftar token
+            updateTokenList();
+        })
+        .catch((error) => {
+            console.error("Error saving verification token:", error);
+            alert("Error saving verification token: " + error.message);
+        });
+    }
+
+    function updateTokenList() {
+        // Menghapus konten yang ada di dalam elemen tokenList
+        tokenList.innerHTML = "";
+
+        // Mendapatkan daftar token dari Firestore dan menampilkannya
+        db.collection("tokens").orderBy("created_at", "desc").get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    const tokenData = doc.data();
+                    const tokenItem = document.createElement("div");
+                    tokenItem.classList.add("token-item");
+                    tokenItem.innerHTML = `
+                        <span>Token: ${tokenData.verificationCode}</span>
+                        <button onclick="deleteToken('${doc.id}')">Hapus</button>
+                    `;
+                    tokenList.appendChild(tokenItem);
+                });
+            })
+            .catch((error) => {
+                console.error("Error getting documents: ", error);
+            });
+    }
+
+    function deleteToken(tokenId) {
+        // Menghapus token dari Firestore
+        db.collection("tokens").doc(tokenId).delete()
+            .then(() => {
+                console.log("Token berhasil dihapus");
+                // Perbarui daftar token setelah menghapus
+                updateTokenList();
+            })
+            .catch((error) => {
+                console.error("Error removing document: ", error);
+            });
+    }
+
+    // Memanggil fungsi untuk pertama kali saat halaman dimuat
+    updateTokenList();
+</script>
+</body>
+</html>

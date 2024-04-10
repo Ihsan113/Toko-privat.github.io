@@ -1,0 +1,620 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toko Online Jajanan Bu Eti</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-decoration: none;
+        }
+
+        header {
+            background-color: #131313e6;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            color: white;
+        }
+        
+        header h2 {
+            margin-top: -15px;
+            text-align: left;
+            font-size: 25px;
+            border-bottom: 1px solid #ccc; 
+            width: 75%; 
+            margin-left: -5%;
+
+            
+        }
+main {
+    margin-bottom: 54px;
+}
+        .row {
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            margin-bottom: 10px;
+        }
+
+        .product-card {
+            min-width: 180px;
+            margin: 10px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            position: relative;
+            
+        }
+
+        .product-card img {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .product-card h3 {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .product-card p {
+            font-size: 14px;
+            
+        }
+
+        .add-to-cart {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #007bff;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-to-cart:hover {
+            background-color: #0056b3;
+        }
+
+        #cart-button {
+            position: fixed;
+            top: 42px;
+            right: 10px;
+            background-color: #007bff;
+            color: white;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        #cart-button:hover {
+            background-color: #0056b3;
+        }
+
+        #success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 999;
+            display: none;
+            animation: slideIn 0.5s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(0); }
+        }
+        
+          
+
+        #cart-button:hover {
+            background-color: #0056b3;
+        }
+
+     .navigation {
+    position: fixed;
+    bottom: 5px; /* Ubah jarak dari bawah sesuai kebutuhan */
+    left: 50%; /* Posisikan di tengah */
+    transform: translateX(-50%); /* Geser sejauh setengah lebar elemen */
+    width: 300px; /* Lebarkan sesuai konten */
+    height: 45px;
+    background-color: #000000df;
+    display: flex;
+    justify-content: space-between;
+    padding: 0px;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    border-radius: 9px;
+}
+
+.navigation button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    padding: 0 35px; /* Tambahkan padding ke kiri dan kanan */
+    color: white; /* Ubah warna teks menjadi putih */
+}
+
+.navigation a { 
+color: white; 
+text-decoration: none; 
+display: flex; 
+align-items: center; 
+justify-content: center; 
+padding: 0 35px; 
+cursor: pointer; 
+} 
+.navigation a i { 
+font-size: 50px; 
+}
+    
+
+.slider-container {
+    overflow: hidden;
+    
+    max-width: 360px; /* Mengatur lebar slider */
+    height: 200px; /* Mengatur tinggi slider */
+    position: relative;
+    border-radius: 8px;
+    margin: 0 auto; /* Membuat slider berada di tengah secara horizontal */
+}
+
+.slides {
+    display: flex;
+    margin-top: 25px;
+    transition: transform 0.5s ease-in-out;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%; /* Mengisi lebar slider */
+    height: 100%; /* Mengisi tinggi slider */
+}
+
+.slide {
+    min-width: 100%;
+    height: 100%; /* Mengisi tinggi slider */
+}
+
+.slide img {
+    width: 100%;
+    height: 100%; /* Mengisi tinggi gambar */
+    object-fit: cover; /* Memastikan gambar menutupi seluruh area slider */
+}
+
+.button-container {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    transform: translateY(-50%);
+}
+
+.slider-button {
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.slider-button:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+#user-info {
+    color: white;
+    border: 1px solid #ccc;
+    background-color: #1e1e1ec7;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Efek bayangan */
+    padding: 20px; /* Jarak antara konten dan tepi kartu */
+    text-align: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+   z-index: 999;
+   
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%); /* Memindahkan elemen ke tengah */
+    background-color: rgba(0, 0, 0, 0.5); /* Warna hitam dengan opasitas 50% */
+    z-index: 9999;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+}
+
+.atom {
+    position: relative;
+    width: 40px;
+    height: 40px;
+}
+
+.dot {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    animation: orbit 2s linear infinite, spin 2s linear infinite, pulse 2s ease-in-out infinite;
+}
+
+.dot:nth-child(1) {
+    top: calc(50% - 40px);
+    left: calc(50% - 10px);
+    transform-origin: center center;
+    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+}
+
+.dot:nth-child(2) {
+    top: calc(50% + 20px);
+    left: calc(50% - 10px);
+    transform-origin: center center;
+    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+}
+
+.dot:nth-child(3) {
+    top: calc(50% - 10px);
+    left: calc(50% - 40px);
+    transform-origin: center center;
+    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+}
+
+.dot:nth-child(4) {
+    top: calc(50% - 10px);
+    left: calc(50% + 20px);
+    transform-origin: center center;
+    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+}
+
+@keyframes orbit {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+
+    </style>
+</head>
+
+<body>
+<header>
+    <h2>Toko Online Bu Eti</h2>
+    <div id="user-info"></div>
+    <div id="success-message" class="success-message"></div>
+</header>
+
+
+<body>
+    <div class="slider-container">
+        <div class="slides">
+            <div class="slide">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQq72x2NJV2b1Jkrk5JsheSgcVaIRC1BIYd7mMA9zfgwq-ohmBR-9xZ_b1R&s=10" alt="Slide 1">
+            </div>
+            <div class="slide">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9TELiqpdExPWZoHSYZxlQyHKK3cLsp8pHiw&s" alt="Slide 2">
+            </div>
+            <div class="slide">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAms1fWC7s4uOvc_nYlaz2CJcMS_Y6-zIQH0-4lnVnTPmkr-CRMpFFhAc&s=10" alt="Slide 3">
+            </div>
+        </div>
+        <div class="button-container">
+            <button class="slider-button prev" onclick="prevSlide()"><</button>
+            <button class="slider-button next" onclick="nextSlide()">></button>
+        </div>    
+    </div>
+      <p>&nbsp/Sepesial Ramadhan Beli dan dapatkan Poin nya :)</p>
+      
+
+<div id="loading-overlay" class="loading-overlay">
+    <div class="atom"> <div class="dot"></div> <div class="dot"></div> <div class="dot"></div> <div class="dot"></div>
+    
+    
+</div>
+
+</div>
+
+
+<main>
+    <h3>&nbspProduk1:</h3>
+    <div class="row" id="row1"></div>
+    <h3>&nbspProduk2:</h3>
+    <div class="row" id="row2"></div>
+    <h3>&nbspProduk3:</h3>
+    <div class="row" id="row3"></div>
+</main>
+
+<!-- Tombol keranjang -->
+<a href="Halaman/cart.html" id="cart-button">
+    <i class="fas fa-shopping-cart"></i>
+</a>
+
+<!-- Tombol navigasi -->
+<div class="navigation"> <a href="Akun/login.html" id="Akun/login-button">
+    <i class="fas fa-sign-in-alt"></i></a> <a href="Akun/hadiah.html" id="gift-button">
+        <i class="fas fa-gift"></i></a> <a href="Akun/profil.html" id="profile-button">
+            <i class="fas fa-user"></i></a> </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+        authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+        projectId: "toko-online-ku-8be4a",
+        storageBucket: "toko-online-ku-8be4a.appspot.com",
+        messagingSenderId: "714682286460",
+        appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+        measurementId: "G-7RS1N1FT8Z"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    const products = [
+        { name: "Bembeng", price: 2500, bonusPoints: 4, image: "https://img.ws.mms.shopee.co.id/db572b217ce298e397ea8fc452302f8a" },
+        { name: "Chitato Sapi Panggang", price: 2000, bonusPoints: 3, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMJmPEtEDtGsnBmv-0s9A1YI9HFp8yJUY12xjWr7uETpjLFFsjRg_00gpe&s=10" },
+        { name: "Chitato Lite", price: 2000, bonusPoints: 3, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6bxEC7X08bMopn0ajnyCgPwb_e3bSDenY12jH6Arrv156fa9ZKazC-rXQ&s=10" },
+        { name: "Chocochip Simba", price: 2000, bonusPoints: 3, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwoT6RFwV_pYIz0aORZCVmqbFbS7wM_Hqa_r6zlss2UImUIdJCIfxgxK0&s=10" },
+        { name: "Crunchy Potato", price: 2000, bonusPoints: 3, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUPyiWsQq0m9k-jldDqEcNB8GXrEPTtexYYI2T70kS51EyzSA3hL-L9YI&s=10" },
+         { name: "Garuda Rosta", price: 1000, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlGhC6j8_k1fTRrh6oj5IkPnkEci5mGl6ZKcEirZefFx2UXAKiwdZHNMA&s=10" },
+         
+        { name: "Kopi Kapal Api", price: 5000, bonusPoints: 3, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFfqNVX0m8L3Wku7srzNCV7uguvS9lEV8ZWEk-VQL7ND0xO1FcYmGaJUuc&s=10" },
+       
+        { name: "Susu Jahe", price: 1500, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTM4cW_rEg5GL070RTDmX1_GPK6EHfB1Y2czPTD5qGOlyq_Urw7rTJgpf4S&s=10" },
+        { name: "Poky", price: 2500, bonusPoints: 4, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5ptt_M-TrOOjw4hD08NSnoc4VQ4ONyy10BA&usqp=CAU" },
+        
+          { name: "Nori Boom", price: 2000, bonusPoints: 3, image: "https://down-id.img.susercontent.com/file/id-11134207-7r98z-lqde9aqrlrjm06" },
+        { name: "Good day", price: 1500, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-fhlUKrk0LkuvNspCMsgu8NYl79NJQRloHmIAnNiH7ll_jxX8uTgV2cA&s=10" },
+        { name: "Migelas", price: 1500, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShTMge55f7MOO13dVo-yRB8WdWEDMqeE0LB4ONGH1_b4U7pPLxrMD04go&s=10" },
+        { name: "Mi goreng", price: 3500, bonusPoints: 5, image: "https://i.ibb.co/FzY7QPg/download.webp" },
+        
+         { name: "Pilus Garuda", price: 500, bonusPoints: 1, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrxHXTcm7fLlbdJNOz73R74vRE_8H4nIAZ--PLyByqhZfLjWssmVeKmDQ&s=10" },
+       
+        
+        { name: "Nutrisari", price: 1500, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgXy9ha7bMFj5fePd9q8mYuRBynD5qo_LzRw&usqp=CAU" }
+    ];
+
+    function displayProducts() {
+        const row1 = document.getElementById("row1");
+        const row2 = document.getElementById("row2");
+        const row3 = document.getElementById("row3");
+
+        products.forEach((product, index) => {
+            const card = document.createElement("div");
+            card.classList.add("product-card");
+            card.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <p>Price: Rp${product.price}</p>
+                    <p>Bonus Points: ${product.bonusPoints}</p>
+                    <br>
+                    <button class="add-to-cart">Add to Cart</button>
+                `;
+          if (index < 5) {
+    row1.appendChild(card);
+} else if (index < 10) {
+    row2.appendChild(card);
+} else {
+    row3.appendChild(card);
+}
+
+
+
+            const addToCartBtn = card.querySelector(".add-to-cart");
+            addToCartBtn.addEventListener("click", () => {
+                addToCart(index); // Panggil fungsi addToCart saat tombol Add to Cart diklik
+            });
+        });
+    }
+
+    function addToCart(index) {
+        const selectedProduct = products[index];
+        const user = firebase.auth().currentUser;
+
+        if (user) {
+            const userId = user.uid;
+            const userCartRef = firebase.firestore().collection('carts').doc(userId);
+
+            userCartRef.get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        // Jika keranjang pengguna sudah ada, tambahkan produk ke keranjang
+                        const cartData = doc.data();
+                        const updatedProducts = [...cartData.products];
+                        const existingProductIndex = updatedProducts.findIndex(product => product.name === selectedProduct.name);
+                        if (existingProductIndex !== -1) {
+                            // Jika produk sudah ada dalam keranjang, tambahkan jumlahnya
+                            updatedProducts[existingProductIndex].quantity += 1;
+                        } else {
+                            // Jika produk belum ada dalam keranjang, tambahkan produk baru
+                            selectedProduct.quantity = 1;
+                            updatedProducts.push(selectedProduct);
+                        }
+                        userCartRef.update({ products: updatedProducts })
+                            .then(() => {
+                                console.log("Product added to cart successfully.");
+                                showSuccessMessage(selectedProduct.name);
+                            })
+                            .catch((error) => {
+                                console.error("Error adding product to cart:", error);
+                            });
+                    } else {
+                        // Jika keranjang pengguna belum ada, buat keranjang baru
+                        selectedProduct.quantity = 1;
+                        userCartRef.set({ products: [selectedProduct] })
+                            .then(() => {
+                                console.log("Product added to cart successfully.");
+                                showSuccessMessage(selectedProduct.name);
+                            })
+                            .catch((error) => {
+                                console.error("Error adding product to cart:", error);
+                            });
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error getting document:", error);
+                });
+        } else {
+            console.error("No user is signed in.");
+        }
+    }
+
+    function showSuccessMessage(productName) {
+        const successMessage = document.getElementById("success-message");
+        successMessage.innerText = `${productName} berhasil ditambahkan ke keranjang.`;
+        successMessage.style.display = "block";
+        setTimeout(() => {
+            successMessage.style.display = "none";
+        }, 2000); // Hide after 2 seconds
+    }
+
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            // User is signed in
+            displayUserInfo(user);
+        } else {
+            // No user is signed in
+            const userInfoDiv = document.getElementById("user-info");
+            userInfoDiv.innerHTML = "";
+        }
+    });
+
+    function displayUserInfo(user) {
+        const userInfoDiv = document.getElementById("user-info");
+        userInfoDiv.innerHTML = `
+                <div>
+                    
+                    <span>Selamat Datang, ${user.displayName}!</span>
+                </div>
+            `;
+    }
+
+    window.onload = displayProducts;
+    
+    // Dapatkan referensi ke dokumen keranjang pengguna di Firebase jika pengguna telah masuk
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        const userCartRef = firebase.firestore().collection('carts').doc(user.uid);
+
+        // Perbarui tampilan tombol keranjang dengan jumlah produk saat halaman dimuat
+        updateCartButton(userCartRef);
+    }
+});
+
+// Fungsi untuk mengupdate tampilan tombol keranjang
+function updateCartButton(userCartRef) {
+    userCartRef.get()
+        .then((doc) => {
+            if (doc.exists) {
+                // Jika dokumen keranjang ada, hitung jumlah total produk
+                const cartData = doc.data();
+                const totalProducts = cartData.products.length;
+
+                // Tampilkan jumlah total produk di tombol keranjang
+                const cartButton = document.getElementById("cart-button");
+                cartButton.innerHTML = `<i class="fas fa-shopping-cart"></i> ${totalProducts}`;
+            } else {
+                // Jika dokumen keranjang tidak ada, tampilkan jumlah 0 di tombol keranjang
+                const cartButton = document.getElementById("cart-button");
+                cartButton.innerHTML = `<i class="fas fa-shopping-cart"></i> 0`;
+            }
+        })
+        .catch((error) => {
+            console.error("Error getting cart document:", error);
+        });
+}
+
+
+<!-- slider -->
+let slideIndex = 0;
+
+        function showSlides() {
+            const slides = document.querySelectorAll('.slide');
+            if (slideIndex >= slides.length) {
+                slideIndex = 0;
+            } else if (slideIndex < 0) {
+                slideIndex = slides.length - 1;
+            }
+            slides.forEach(slide => {
+                slide.style.display = 'none';
+            });
+            slides[slideIndex].style.display = 'block';
+        }
+
+        function nextSlide() {
+            slideIndex++;
+            showSlides();
+        }
+
+        function prevSlide() {
+            slideIndex--;
+            showSlides();
+        }
+
+        function autoSlide() {
+            nextSlide();
+            setTimeout(autoSlide, 3000); // Ubah waktu interval di sini (ms)
+        }
+
+        autoSlide(); // Aktifkan auto slide
+        
+        <!-- loading -->
+document.addEventListener("DOMContentLoaded", function() {
+    const loadingOverlay = document.querySelector(".loading-overlay"); // Menggunakan selector yang sesuai
+    loadingOverlay.style.display = "flex"; // Menggunakan display: flex untuk kontainer loading
+
+    setTimeout(function() {
+        loadingOverlay.style.display = "none"; // Sembunyikan overlay setelah 3 detik
+    }, 3000); // Waktu dalam milidetik (3 detik)
+});
+
+
+</script>
+
+</body>
+</html>
+
+
+   
+      
+     
