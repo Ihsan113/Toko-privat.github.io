@@ -19,15 +19,14 @@
             text-align: center;
             position: relative;
             color: white;
-            height: 105px;
+            height: 155px;
         }
         
         header h2 {
             margin-top: -15px;
             text-align: left;
             font-size: 25px;
-            border-bottom: 1px solid #ccc; 
-            width: 75%; 
+            
             margin-left: 5px;
             padding-bottom: 10px;
 
@@ -224,7 +223,6 @@ font-size: 50px;
 
 #user-info {
     color: white;
-    
     border: 1px solid #ccc;
     background-color: #1e1e1ec7;
     border-radius: 10px;
@@ -234,10 +232,18 @@ font-size: 50px;
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-   z-index: 999;
-   margin-top: -10px;
-   
+    z-index: 999;
+    top: 50px; /* Jarak dari bagian atas */
 }
+
+#user-info img {
+    width: 60px; /* Sesuaikan lebar sesuai kebutuhan */
+    height: 60px; /* Sesuaikan tinggi sesuai kebutuhan */
+    border-radius: 50%; /* Membuat sudut foto menjadi bulat */
+    margin-bottom: 0px; /* Jarak antara foto profil dan teks */
+}
+
+
 
 .loading-overlay {
     position: fixed;
@@ -315,38 +321,52 @@ font-size: 50px;
     100% { transform: scale(1); }
 }
 
-/* Gaya untuk input dan tombol pencarian */
 .search-container {
     position: relative;
-    margin-top: 35px;
-    
-    
+    display: inline-block; /* Untuk membuat tombol dan input menjadi inline */
 }
 
 .search-container input[type="text"] {
-    padding: 8px 30px 8px 10px; /* Menyesuaikan padding agar tombol tetap berada di dalam input */
-    border: none;
+    padding: 8px 30px 8px 10px;
+    border: 1px solid #ccc;
     border-radius: 5px;
-    width: 200px;
-    background-color: #ffffffb6;
+    width: calc(100% - 40px); /* Mengurangi lebar input agar tombol masuk */
+    background-color: #ffffff; /* Mengubah warna input menjadi putih */
+    margin-top: 84px;
+    transition: width 0.3s; /* Efek transisi saat lebar input berubah */
 }
 
-.search-container button {
+.search-container .search-button {
     position: absolute;
-    right: 50px;
     top: 0;
-    width: 30px; /* Lebar tombol */
-    height: 100%; /* Tinggi tombol agar sesuai dengan tinggi input */
+    right: 0;
+    margin-top: 92px;
+    width: 30px;    
     border: none;
     background: none;
     cursor: pointer;
+    
+    transition: right 0.3s; /* Efek transisi saat posisi tombol berubah */
 }
 
-/* Gaya ikon pencarian */
-.search-container button i {
-    color: white;
-    
+
+#announcement {
+margin-top: 22px;
+    background-color: #1067bbe1;
+    padding: 5px;
+    border-radius: 5px;
+    margin-left: 10px;
+    width: 85%;
 }
+
+#announcement p {
+    margin: 0;
+    font-size: 16px;
+}
+
+
+
+
 
     </style>
 </head>
@@ -359,10 +379,13 @@ font-size: 50px;
     <br>
     
     <div id="success-message" class="success-message"></div>
-    <!-- fitur search -->
+   <!-- fitur search -->
 <div class="search-container">
     <input type="text" id="searchInput" placeholder="Cari produk...">
-    <button id="searchButton" onclick="toggleSearch()"><i class="fas fa-search"></i></button>
+    <div class="search-buttons">
+        <button class="search-button" id="searchButton" onclick="toggleSearch()"><i class="fas fa-search"></i></button>
+       
+    </div>
 </div>
 
 
@@ -392,7 +415,11 @@ font-size: 50px;
             <button class="slider-button next" onclick="nextSlide()">></button>
         </div>    
     </div>
-      <p>&nbsp/Sepesial Ramadhan Beli dan dapatkan Poin nya :)</p>
+    
+    <div id="announcement">
+        <p>🌙 Sepesial Ramadhan: Beli dan dapatkan Poinnya! 🌟</p>
+</div>
+
       
 
 <div id="loading-overlay" class="loading-overlay">
@@ -571,14 +598,34 @@ font-size: 50px;
     });
 
     function displayUserInfo(user) {
-        const userInfoDiv = document.getElementById("user-info");
-        userInfoDiv.innerHTML = `
+    const userInfoDiv = document.getElementById("user-info");
+
+    // Ambil data pengguna dari Firestore
+    const userRef = firebase.firestore().collection("profiles").doc(user.uid);
+    userRef.get().then((doc) => {
+        if (doc.exists) {
+            // Jika dokumen pengguna ditemukan, ambil URL foto profil
+            const userData = doc.data();
+            const photoURL = userData.profilePicture; // Sesuaikan dengan nama field yang digunakan di Firestore
+
+            // Tampilkan foto profil pengguna
+            userInfoDiv.innerHTML = `
                 <div>
-                    
+                    <img src="${photoURL}" alt="Profile Picture">
                     <span>Selamat Datang, ${user.displayName}!</span>
                 </div>
             `;
-    }
+        } else {
+            // Jika dokumen pengguna tidak ditemukan, tampilkan pesan kesalahan atau tindakan lain sesuai kebutuhan
+            console.log("Dokumen pengguna tidak ditemukan.");
+        }
+    }).catch((error) => {
+        console.error("Error getting user document:", error);
+    });
+}
+
+
+
 
     window.onload = displayProducts;
     
