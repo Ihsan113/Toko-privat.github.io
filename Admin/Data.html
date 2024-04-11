@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Product Information</h2>
+    <table id="product-table">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>Bonus Points</th>
+                <th>Quantity</th>
+                <th>Buyer Name</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Product information will be displayed here -->
+        </tbody>
+    </table>
+    <div>Total Price: <span id="total-price">$0.00</span></div>
+
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+            authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+            projectId: "toko-online-ku-8be4a",
+            storageBucket: "toko-online-ku-8be4a.appspot.com",
+            messagingSenderId: "714682286460",
+            appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+            measurementId: "G-7RS1N1FT8Z"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        const db = firebase.firestore();
+
+        // Get reference to the product table
+        const productTable = document.getElementById("product-table");
+
+        // Fetch product information from Firestore
+        db.collection("alality").get().then((querySnapshot) => {
+            let totalPrice = 0;
+            querySnapshot.forEach((doc) => {
+                const productData = doc.data();
+                const productName = productData.name;
+                const price = productData.price.toFixed(2);
+                const bonusPoints = productData.bonusPoints;
+                const quantity = productData.quantity;
+                const buyerName = productData.buyerName;
+                const date = productData.date; // Get purchase date
+
+                // Create a new row for each product and append it to the table
+                const newRow = document.createElement("tr");
+                newRow.innerHTML = `
+                    <td>${productName}</td>
+                    <td>$${price}</td>
+                    <td>${bonusPoints}</td>
+                    <td>${quantity}</td>
+                    <td>${buyerName}</td>
+                    <td>${date}</td>
+                    <td><button onclick="deleteProduct('${doc.id}')">Delete</button></td>
+                `;
+                productTable.appendChild(newRow);
+
+                // Calculate total price
+                totalPrice += parseFloat(price);
+            });
+
+            // Update total price display
+            document.getElementById("total-price").textContent = "$" + totalPrice.toFixed(2);
+        }).catch((error) => {
+            console.error("Error getting product information:", error);
+        });
+
+        // Function to delete product
+        function deleteProduct(productId) {
+            if (confirm("Are you sure you want to delete this product?")) {
+                db.collection("alality").doc(productId).delete().then(() => {
+                    console.log("Product successfully deleted");
+                    // Reload the page after deleting product
+                    location.reload();
+                }).catch((error) => {
+                    console.error("Error deleting product:", error);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
