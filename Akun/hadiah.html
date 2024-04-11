@@ -210,7 +210,7 @@ font-size: 16px;
     
    <div class="container">
        <p>Secrenshout dan kasihkan ke kasir</p>
-      <p>####################</p>
+     
     
     <h3>Menangkan Hadiah Menarik!!</h3>
     <div id="coinDisplay" class="coin-display">
@@ -223,7 +223,7 @@ font-size: 16px;
     
     <button onclick="showRewardInfo()">Info Hadiah</button>
     <div id="rewardDisplay"></div>
-    <p>####################</p>
+    
     <h4>Hak Cipta ©Sanz113 | 2024</h4>
 </div>
 
@@ -274,7 +274,7 @@ font-size: 16px;
     
    // Function to show reward information
 function showRewardInfo() {
-    alert("Info hadiah:\n1. Rp.500\n2. Free Fire 70💎\n3. Free Fire 12💎\n4. Nutrisi\n5. Permen\n6. Free Fire 5💎\n7. Mi gelas\n\nSemoga beruntung!");
+    alert("Info hadiah:\n1. Rp.500\n2. Free Fire 70💎\n3. Free Fire 12💎\n4. Nutrisari\n5. Permen\n6. Free Fire 5💎\n7. Mi gelas\n\nSemoga beruntung!");
 }
 
 
@@ -312,83 +312,108 @@ function showRewardInfo() {
         // Function to spin the wheel and display reward
 
     function spinWheel() {
-        const currentCoins = parseInt(coinCountSpan.textContent);
-        if (currentCoins >= 15) {
-            const confirmPlay = confirm("Anda yakin ingin memutar roda hadiah?");
-            if (confirmPlay) {
-                // Disable the button to prevent spamming
-                document.querySelector('button').disabled = true;
+    const currentCoins = parseInt(coinCountSpan.textContent);
+    if (currentCoins >= 15) {
+        const confirmPlay = confirm("Anda yakin ingin memutar roda hadiah?");
+        if (confirmPlay) {
+            // Disable the button to prevent spamming
+            document.querySelector('button').disabled = true;
 
-                const uid = firebase.auth().currentUser.uid;
+            const uid = firebase.auth().currentUser.uid;
 
-                // Deduct 15 coins from user's balance in Firestore
-                const userRef = firebase.firestore().collection('profiles').doc(uid);
-                userRef.get().then(doc => {
-                    if (doc.exists) {
-                        const userData = doc.data();
-                        const currentCoins = userData.points || 0;
-                        if (currentCoins >= 15) {
-                            const remainingCoins = currentCoins - 15;
-                            userRef.update({ points: remainingCoins }).then(() => {
-                                // Update coins display after deducting coins from Firestore
-                                updateCoinsDisplay(remainingCoins);
+            // Deduct 15 coins from user's balance in Firestore
+            const userRef = firebase.firestore().collection('profiles').doc(uid);
+            userRef.get().then(doc => {
+                if (doc.exists) {
+                    const userData = doc.data();
+                    const currentCoins = userData.points || 0;
+                    if (currentCoins >= 15) {
+                        const remainingCoins = currentCoins - 15;
+                        userRef.update({ points: remainingCoins }).then(() => {
+                            // Update coins display after deducting coins from Firestore
+                            updateCoinsDisplay(remainingCoins);
 
-                                // Display loading animation
-                                rewardDisplayDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                            // Display loading animation
+                            rewardDisplayDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-                                // Show reward display
-                                rewardDisplayDiv.style.display = 'block';
+                            // Show reward display
+                            rewardDisplayDiv.style.display = 'block';
 
-                                // Start spinning animation
-                                rewardDisplayDiv.classList.add('spin-animation');
+                            // Start spinning animation
+                            rewardDisplayDiv.classList.add('spin-animation');
 
-                                // Simulate delay for spinning animation
-                                setTimeout(() => {
-                                    // Stop spinning animation
-                                    rewardDisplayDiv.classList.remove('spin-animation');
+                            // Simulate delay for spinning animation
+                            setTimeout(() => {
+                                // Stop spinning animation
+                                rewardDisplayDiv.classList.remove('spin-animation');
 
-                                    // Simulate random reward (placeholder)
-                                    const rewards = ['Rp.500', 'Frefire 70💎', 'Frefire 12💎', 'Nutrisi', 'Permen', 'Frefire 5💎', 'Mi gelas'];
-                                    const randomIndex = Math.floor(Math.random() * rewards.length);
-                                    const reward = rewards[randomIndex];
-                                    const rewardText = `Hadiah: ${reward} ©Ihsan113`;
-                                    const qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(rewardText);
+                                // Simulate random reward (placeholder)
+                                const rewards = [
+                                    { name: 'Rp.500', probability: 0.65 },
+                                    { name: 'Frefire 70💎', probability: 0.05 },
+                                    { name: 'Frefire 12💎', probability: 0.1 },
+                                    { name: 'Nutrisari', probability: 0.60 },
+                                    { name: 'Permen', probability: 0.75 },
+                                    { name: 'Frefire 5💎', probability: 0.15 },
+                                    { name: 'Mi gelas', probability: 0.30 }
+                                ];
 
-                                    // Display the reward as QR code
-                                    rewardDisplayDiv.innerHTML = `<img src="${qrCodeUrl}" alt="QR Code Reward">`;
+                                let totalProbability = 0;
+                                for (const reward of rewards) {
+                                    totalProbability += reward.probability;
+                                }
 
-                                    // Enable the button again after animation ends
-                                    document.querySelector('button').disabled = false;
-                                }, 7000); // 7 seconds delay for spinning animation
-                            }).catch(error => {
-                                console.log('Error updating user document:', error);
-                                // Show error message and return coins if network error occurs
-                                alert("Terjadi kesalahan jaringan. Silakan coba lagi.");
-                                userRef.update({ points: currentCoins }).then(() => {
-                                    updateCoinsDisplay(currentCoins);
-                                    document.querySelector('button').disabled = false; // Enable the button again
-                                });
+                                const randomProbability = Math.random() * totalProbability;
+
+                                let accumulatedProbability = 0;
+                                let selectedReward;
+                                for (const reward of rewards) {
+                                    accumulatedProbability += reward.probability;
+                                    if (randomProbability <= accumulatedProbability) {
+                                        selectedReward = reward.name;
+                                        break;
+                                    }
+                                }
+
+                                const rewardText = `Hadiah: ${selectedReward}`;
+                                const qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(rewardText);
+
+                                // Display the reward as QR code
+                                rewardDisplayDiv.innerHTML = `<img src="${qrCodeUrl}" alt="QR Code Reward">`;
+
+                                // Enable the button again after animation ends
+                                document.querySelector('button').disabled = false;
+                            }, 7000); // 7 seconds delay for spinning animation
+                        }).catch(error => {
+                            console.log('Error updating user document:', error);
+                            // Show error message and return coins if network error occurs
+                            alert("Terjadi kesalahan jaringan. Silakan coba lagi.");
+                            userRef.update({ points: currentCoins }).then(() => {
+                                updateCoinsDisplay(currentCoins);
+                                document.querySelector('button').disabled = false; // Enable the button again
                             });
-                        } else {
-                            alert("Maaf, Anda tidak memiliki cukup koin untuk memainkan roda hadiah.");
-                        }
+                        });
                     } else {
-                        console.log('No such document!');
+                        alert("Maaf, Anda tidak memiliki cukup koin untuk memainkan roda hadiah.");
                     }
-                }).catch(error => {
-                    console.log('Error getting user document:', error);
-                    // Show error message and return coins if network error occurs
-                    alert("Terjadi kesalahan jaringan. Silakan coba lagi.");
-                    userRef.update({ points: currentCoins }).then(() => {
-                        updateCoinsDisplay(currentCoins);
-                        document.querySelector('button').disabled = false; // Enable the button again
-                    });
+                } else {
+                    console.log('No such document!');
+                }
+            }).catch(error => {
+                console.log('Error getting user document:', error);
+                // Show error message and return coins if network error occurs
+                alert("Terjadi kesalahan jaringan. Silakan coba lagi.");
+                userRef.update({ points: currentCoins }).then(() => {
+                    updateCoinsDisplay(currentCoins);
+                    document.querySelector('button').disabled = false; // Enable the button again
                 });
-            }
-        } else {
-            alert("Maaf, Anda tidak memiliki cukup koin untuk memainkan roda hadiah.");
+            });
         }
+    } else {
+        alert("Maaf, Anda tidak memiliki cukup koin untuk memainkan roda hadiah.");
     }
+}
+
     
      <!-- loading -->
 document.addEventListener("DOMContentLoaded", function() {
