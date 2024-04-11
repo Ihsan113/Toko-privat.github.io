@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -361,48 +362,22 @@ font-size: 20px;
         `;
 
         // Perbarui poin pengguna di Firebase Firestore
-        updatePoints(totalPoints);
+        // updatePoints(totalPoints); // Hapus pemanggilan ini dari sini
     }
 
-    // Fungsi untuk memperbarui poin pengguna di Firebase Firestore
-function updatePoints(points) {
+ // Fungsi untuk memperbarui poin pengguna di Firebase Firestore
+function updatePoints(pointsToAdd) {
     const userId = firebase.auth().currentUser.uid;
     const userRef = firebase.firestore().collection('profiles').doc(userId);
 
-    return userRef.get()
-        .then((doc) => {
-            if (doc.exists) {
-                // Jika dokumen profil pengguna sudah ada, lanjutkan dengan memperbarui poin
-                const userData = doc.data();
-                const currentPoints = userData.points || 0;
-                const updatedPoints = currentPoints + points;
-
-                // Update poin pengguna di dokumen profil mereka
-                return userRef.update({ points: updatedPoints })
-                    .then(() => {
-                        console.log("User points updated successfully.");
-                    })
-                    .catch((error) => {
-                        console.error("Error updating user points:", error);
-                    });
-            } else {
-                // Jika dokumen profil pengguna belum ada, buat profil baru dengan poin yang diterima
-                return userRef.set({ points: points })
-                    .then(() => {
-                        console.log("New user profile created with points.");
-                    })
-                    .catch((error) => {
-                        console.error("Error creating new user profile:", error);
-                    });
-            }
+    return userRef.update({ points: firebase.firestore.FieldValue.increment(pointsToAdd) })
+        .then(() => {
+            console.log("User points updated successfully.");
         })
         .catch((error) => {
-            console.error("Error getting user profile:", error);
-            // Logika untuk menangani kesalahan saat mengambil profil pengguna
-            // Misalnya, menampilkan pesan kesalahan kepada pengguna
+            console.error("Error updating user points:", error);
         });
 }
-
 
     // Tombol Beli
     const buyButton = document.getElementById("buy-button");
@@ -507,6 +482,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }, 3000); // Waktu dalam milidetik (3 detik)
 });
 </script>
+
 </body>
 </html>
 
