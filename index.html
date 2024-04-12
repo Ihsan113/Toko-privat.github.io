@@ -362,6 +362,7 @@ margin-top: 22px;
 #announcement p {
     margin: 0;
     font-size: 16px;
+    color: white;
 }
 
 
@@ -434,7 +435,7 @@ margin-top: 22px;
                 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQq72x2NJV2b1Jkrk5JsheSgcVaIRC1BIYd7mMA9zfgwq-ohmBR-9xZ_b1R&s=10" alt="Slide 1">
             </div>
             <div class="slide">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9TELiqpdExPWZoHSYZxlQyHKK3cLsp8pHiw&s" alt="Slide 2">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPVbrq2FRqG4_6EJWtf3OP8eJPdgM4CYtbv91iW78VsaZPI1d2d48mIbg&s=10" alt="Slide 2">
             </div>
             <div class="slide">
                 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAms1fWC7s4uOvc_nYlaz2CJcMS_Y6-zIQH0-4lnVnTPmkr-CRMpFFhAc&s=10" alt="Slide 3">
@@ -447,7 +448,7 @@ margin-top: 22px;
     </div>
     
     <div id="announcement">
-        <p>🌙 Sepesial Ramadhan: Beli dan dapatkan Poinnya! 🌟</p>
+        <p>Kumpulkan poin nya Dan tukar kan dengan hadiah yang menarik 💎</p>
 </div>
 
       
@@ -470,6 +471,10 @@ margin-top: 22px;
     <div class="row" id="row3"></div>
     
     <div class="row" id="row4"></div>
+    
+     <div class="row" id="row5"></div>
+     
+     <div class="row" id="row6"></div>
 </main>
 
 <!-- Tombol keranjang -->
@@ -501,38 +506,55 @@ margin-top: 22px;
     firebase.initializeApp(firebaseConfig);
 
     const products = [
-        { name: "Bembeng", price: 2500, bonusPoints: 4, image: "https://img.ws.mms.shopee.co.id/db572b217ce298e397ea8fc452302f8a" },
-        { name: "Chitato Sapi Panggang", price: 2000, bonusPoints: 3, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMJmPEtEDtGsnBmv-0s9A1YI9HFp8yJUY12xjWr7uETpjLFFsjRg_00gpe&s=10" },
-        { name: "Chitato Lite", price: 2000, bonusPoints: 3, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6bxEC7X08bMopn0ajnyCgPwb_e3bSDenY12jH6Arrv156fa9ZKazC-rXQ&s=10" },
-        { name: "Chocochip Simba", price: 2000, bonusPoints: 3, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwoT6RFwV_pYIz0aORZCVmqbFbS7wM_Hqa_r6zlss2UImUIdJCIfxgxK0&s=10" },
-        { name: "Crunchy Potato", price: 2000, bonusPoints: 3, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUPyiWsQq0m9k-jldDqEcNB8GXrEPTtexYYI2T70kS51EyzSA3hL-L9YI&s=10" },
-         { name: "Garuda Rosta", price: 1000, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlGhC6j8_k1fTRrh6oj5IkPnkEci5mGl6ZKcEirZefFx2UXAKiwdZHNMA&s=10" },
+        { name: "Bembeng", price: 2500, bonusPoints: 3, image: "https://img.ws.mms.shopee.co.id/db572b217ce298e397ea8fc452302f8a" },
+        { name: "Chitato Sapi Panggang", price: 2000, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMJmPEtEDtGsnBmv-0s9A1YI9HFp8yJUY12xjWr7uETpjLFFsjRg_00gpe&s=10" },
+        { name: "Chitato Lite", price: 2000, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6bxEC7X08bMopn0ajnyCgPwb_e3bSDenY12jH6Arrv156fa9ZKazC-rXQ&s=10" },
+        { name: "Chocochip Simba", price: 2000, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwoT6RFwV_pYIz0aORZCVmqbFbS7wM_Hqa_r6zlss2UImUIdJCIfxgxK0&s=10" },
+        { name: "Crunchy Potato", price: 2000, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUPyiWsQq0m9k-jldDqEcNB8GXrEPTtexYYI2T70kS51EyzSA3hL-L9YI&s=10" },
+         { name: "Garuda Rosta", price: 1000, bonusPoints: 1, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlGhC6j8_k1fTRrh6oj5IkPnkEci5mGl6ZKcEirZefFx2UXAKiwdZHNMA&s=10" },
          
-        { name: "Kopi Kapal Api", price: 6500, bonusPoints: 8, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFfqNVX0m8L3Wku7srzNCV7uguvS9lEV8ZWEk-VQL7ND0xO1FcYmGaJUuc&s=10" },
+        { name: "Kopi Kapal Api", price: 6500, bonusPoints: 7, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFfqNVX0m8L3Wku7srzNCV7uguvS9lEV8ZWEk-VQL7ND0xO1FcYmGaJUuc&s=10" },
        
         { name: "Susu Jahe", price: 1500, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTM4cW_rEg5GL070RTDmX1_GPK6EHfB1Y2czPTD5qGOlyq_Urw7rTJgpf4S&s=10" },
-        { name: "Poky", price: 2500, bonusPoints: 4, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5ptt_M-TrOOjw4hD08NSnoc4VQ4ONyy10BA&usqp=CAU" },
+        { name: "Poky", price: 2500, bonusPoints: 3, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5ptt_M-TrOOjw4hD08NSnoc4VQ4ONyy10BA&usqp=CAU" },
         
-          { name: "Nori Boom", price: 2000, bonusPoints: 3, image: "https://down-id.img.susercontent.com/file/id-11134207-7r98z-lqde9aqrlrjm06" },
+          { name: "Nori Boom", price: 2000, bonusPoints: 2, image: "https://down-id.img.susercontent.com/file/id-11134207-7r98z-lqde9aqrlrjm06" },
         { name: "Good day", price: 1500, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-fhlUKrk0LkuvNspCMsgu8NYl79NJQRloHmIAnNiH7ll_jxX8uTgV2cA&s=10" },
-        { name: "Migelas", price: 2000, bonusPoints: 3, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShTMge55f7MOO13dVo-yRB8WdWEDMqeE0LB4ONGH1_b4U7pPLxrMD04go&s=10" },
-        { name: "Mi goreng", price: 3500, bonusPoints: 5, image: "https://i.ibb.co/FzY7QPg/download.webp" },
+        { name: "Migelas", price: 2000, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShTMge55f7MOO13dVo-yRB8WdWEDMqeE0LB4ONGH1_b4U7pPLxrMD04go&s=10" },
+        { name: "Mi goreng", price: 3500, bonusPoints: 4, image: "https://i.ibb.co/FzY7QPg/download.webp" },
         
          { name: "Pilus Garuda", price: 500, bonusPoints: 1, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrxHXTcm7fLlbdJNOz73R74vRE_8H4nIAZ--PLyByqhZfLjWssmVeKmDQ&s=10" },
          
-          { name: "Kopi To Plus", price: 2000, bonusPoints: 3, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzudmgB3XAGBWQsm6Twxaaj3C6X8BDLaA-7g&usqp=CAU" },
+          { name: "Kopi To Plus", price: 2000, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzudmgB3XAGBWQsm6Twxaaj3C6X8BDLaA-7g&usqp=CAU" },
        
         
-         { name: "Sereal", price: 2500, bonusPoints: 4, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT_yQLYDjh_3Xyi4MFfAH-mRyggjB63FvHcv7ESPJcPmu7-BDATJOYwv81&s=10" },
+         { name: "Sereal", price: 2500, bonusPoints: 3, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT_yQLYDjh_3Xyi4MFfAH-mRyggjB63FvHcv7ESPJcPmu7-BDATJOYwv81&s=10" },
         
          { name: "Pop Mie", price: 5500, bonusPoints: 6, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmQAgdpifgwWVAKoagbw7KVKoALB6WU_6u2DjK1oQg-Z-H9J0jCOtaCLw-&s=10" },
          
-           { name: "Mie Rebus", price: 3500, bonusPoints: 5, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSRL2imcSxgNt-KyKiORiAcWaxITju9m2IU_momYbS3j85b5FCvG5nU1so&s=10" },
+           { name: "Mie Rebus", price: 3500, bonusPoints: 4, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSRL2imcSxgNt-KyKiORiAcWaxITju9m2IU_momYbS3j85b5FCvG5nU1so&s=10" },
            
-           { name: "Roti Regal", price: 1000, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTHLLwRObCGuUbHMwCzNqZqG4dOmYqPq_ZDHuf6YZ7m7jxoad57z-pNTfM&s=10" },
+           { name: "Roti Regal", price: 1000, bonusPoints: 1, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTHLLwRObCGuUbHMwCzNqZqG4dOmYqPq_ZDHuf6YZ7m7jxoad57z-pNTfM&s=10" },
         
+         { name: "Arden", price: 2000, bonusPoints: 2, image: "https://smb-padiumkm-images-public-prod.oss-ap-southeast-5.aliyuncs.com/product/image/20102022/631a6de27476cace453d4dce/6351460add4cf6e277995389/255cd7d31c7ce46763b4e532441494.jpg" },
+         
+          { name: "Superstar", price: 1000, bonusPoints: 1, image: "https://down-id.img.susercontent.com/file/d06ec84eadf47395886519f1a763b1b2" },
         
-        { name: "Nutrisari", price: 2000, bonusPoints: 3, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgXy9ha7bMFj5fePd9q8mYuRBynD5qo_LzRw&usqp=CAU" }
+         { name: "Chocolatos", price: 1000, bonusPoints: 1, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcmOpW9-zmGWXuAJz1T2EAd6T0OczIx6SY1A&usqp=CAU" },
+         
+          { name: "Astor", price: 1000, bonusPoints: 1, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDMhC9GCS1fejGm4cSlfw7LUn5DNIiX3xwxIHfUoXFXmHD-mY0AuLP_HX8&s=10" },
+          
+           { name: "Nabati Wrapz", price: 1000, bonusPoints: 1, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbkhmf7-AmcnwqmA7eaD05gVauxGazqAl3OrGaRUEXsJdVd7FOB54aDx4C&s=10" },
+        
+        { name: "Nutrisari", price: 2000, bonusPoints: 2, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgXy9ha7bMFj5fePd9q8mYuRBynD5qo_LzRw&usqp=CAU" },
+         { name: "Free fire 140💎", price: 20000, bonusPoints: 20, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9qLrfbaa2VIhVrOt7aC6pZcb3uyN_409PTZYHnt309XtdtSUZL7hXlz8&s=10" },
+         
+         { name: "Free fire 70💎", price: 10000, bonusPoints: 10, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9qLrfbaa2VIhVrOt7aC6pZcb3uyN_409PTZYHnt309XtdtSUZL7hXlz8&s=10" },
+         
+          { name: "Free fire 50💎", price: 8000, bonusPoints: 8, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9qLrfbaa2VIhVrOt7aC6pZcb3uyN_409PTZYHnt309XtdtSUZL7hXlz8&s=10" },
+          { name: "Free fire 12💎", price: 3500, bonusPoints: 4, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9qLrfbaa2VIhVrOt7aC6pZcb3uyN_409PTZYHnt309XtdtSUZL7hXlz8&s=10" },
+          
+           { name: "Free fire 5💎", price: 2500, bonusPoints: 3, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9qLrfbaa2VIhVrOt7aC6pZcb3uyN_409PTZYHnt309XtdtSUZL7hXlz8&s=10" }          
     ];
 
     function displayProducts() {
@@ -540,6 +562,8 @@ margin-top: 22px;
         const row2 = document.getElementById("row2");
         const row3 = document.getElementById("row3");
         const row4 = document.getElementById("row4");
+        const row5 = document.getElementById("row5");
+        const row6 = document.getElementById("row6");
 
         products.forEach((product, index) => {
             const card = document.createElement("div");
@@ -552,15 +576,21 @@ margin-top: 22px;
                     <br>
                     <button class="add-to-cart">Add to Cart</button>
                 `;
-          if (index < 5) {
+         if (index < 5) {
     row1.appendChild(card);
 } else if (index < 10) {
     row2.appendChild(card);
-   } else if (index < 15) {
-    row3.appendChild(card);
-} else {
+} else if (index < 15) {
+    row3.appendChild(card);     
+} else if (index < 20) {
     row4.appendChild(card);
+} else if (index < 25){
+    row5.appendChild(card);
+} else {
+    row6.appendChild(card);
 }
+
+
 
 
 
