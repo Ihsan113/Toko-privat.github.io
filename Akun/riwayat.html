@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Hadiah</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .gift-list {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .gift-item {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .gift-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .gift-cost {
+            color: #666;
+        }
+
+        .gift-timestamp {
+            color: #999;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #777;
+            margin-top: 20px;
+        }
+         .navigation {
+            position: fixed;
+            bottom: 5px; /* Ubah jarak dari bawah sesuai kebutuhan */
+            left: 50%; /* Posisikan di tengah */
+            transform: translateX(-50%); /* Geser sejauh setengah lebar elemen */
+            width: 300px; /* Lebarkan sesuai konten */
+            height: 45px;
+            background-color: #000000df;
+            display: flex;
+            justify-content: space-between;
+            padding: 0px;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+            border-radius: 9px;
+        }
+
+        .navigation button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            padding: 0 35px; /* Tambahkan padding ke kiri dan kanan */
+            color: white; /* Ubah warna teks menjadi putih */
+        }
+
+        .navigation a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 35px;
+            cursor: pointer;
+        }
+
+        .navigation a i {
+            font-size: 16px;
+        }
+        
+    </style>
+</head>
+<body>
+     <!-- Tombol navigasi -->
+<div class="navigation">
+    <a href="javascript:history.back()" id="login-button">
+        <i class="fas fa-sign-in-alt"></i>
+    </a>
+    <a href="https://toko-privat-github-io.vercel.app" id="gift-button">
+        <i class="fas fa-home"></i>
+    </a>
+    <a href="https://toko-privat-github-io.vercel.app/Akun/hadiah.html" id="gift-button">
+        <i class="fas fa-gift"></i>
+    </a>
+</div>
+    <h1>Riwayat Hadiah</h1>
+    <div class="gift-list" id="giftList">
+        <!-- Daftar hadiah akan ditambahkan secara dinamis menggunakan JavaScript -->
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+            authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+            projectId: "toko-online-ku-8be4a",
+            storageBucket: "toko-online-ku-8be4a.appspot.com",
+            messagingSenderId: "714682286460",
+            appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+            measurementId: "G-7RS1N1FT8Z"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        const giftList = document.getElementById('giftList');
+
+        // Fungsi untuk mendapatkan riwayat hadiah dari Firebase
+        function getGiftHistory() {
+            const user = firebase.auth().currentUser;
+            if (user) {
+                const userId = user.uid;
+                const userExchangeHistoryRef = firebase.firestore().collection('riwayat_admin').doc(userId).collection('tukar');
+
+                userExchangeHistoryRef.orderBy('timestamp', 'desc').get().then(querySnapshot => {
+                    if (querySnapshot.empty) {
+                        // Jika riwayat hadiah kosong, tampilkan pesan
+                        displayEmptyMessage();
+                    } else {
+                        // Jika riwayat hadiah tidak kosong, tampilkan hadiah
+                        querySnapshot.forEach(doc => {
+                            const giftData = doc.data();
+                            renderGift(giftData);
+                        });
+                    }
+                }).catch(error => {
+                    console.error("Error getting gift history:", error);
+                });
+            } else {
+                console.error("No user is signed in.");
+            }
+        }
+
+        // Fungsi untuk menambahkan hadiah ke dalam daftar
+        function renderGift(giftData) {
+            const { giftName, giftCost, timestamp } = giftData;
+            const giftTimestamp = new Date(timestamp.seconds * 1000); // Convert timestamp to Date object
+            const formattedTimestamp = `${giftTimestamp.toLocaleDateString()} ${giftTimestamp.toLocaleTimeString()}`;
+
+            const giftItem = document.createElement('div');
+            giftItem.classList.add('gift-item');
+            giftItem.innerHTML = `
+                <p class="gift-name">Hadiah: ${giftName}</p>
+                <p class="gift-cost">Biaya: ${giftCost} Koin</p>
+                <p class="gift-timestamp">Waktu Tukar: ${formattedTimestamp}</p>
+            `;
+
+            giftList.appendChild(giftItem);
+        }
+
+        // Fungsi untuk menampilkan pesan jika riwayat hadiah kosong
+        function displayEmptyMessage() {
+            const emptyMessage = document.createElement('p');
+            emptyMessage.classList.add('empty-message');
+            emptyMessage.textContent = 'Belum ada riwayat hadiah.';
+            giftList.appendChild(emptyMessage);
+        }
+
+        // Listener untuk mendeteksi perubahan status pengguna
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                // Jika pengguna masuk, dapatkan riwayat hadiah
+                getGiftHistory();
+            } else {
+                console.error("No user is signed in.");
+            }
+        });
+    </script>
+</body>
+</html>

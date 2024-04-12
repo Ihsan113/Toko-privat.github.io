@@ -256,20 +256,7 @@ font-size: 16px;
     };
         firebase.initializeApp(firebaseConfig);
 
-        // Function to check user authentication status
-        firebase.auth().onAuthStateChanged(user => {
-            if (user) {
-                // User is signed in
-                const displayName = user.displayName || 'Unknown';
-                const email = user.email || 'Unknown';
-                updateUserInfo(displayName, email);
-                getUserCoins(user.uid);
-            } else {
-                // No user is signed in
-                console.log('No user is signed in.');
-            }
-        });
-
+       
 
     
    // Function to show reward information
@@ -311,7 +298,25 @@ function showRewardInfo() {
 
         // Function to spin the wheel and display reward
 
-    function spinWheel() {
+    let userName; // Deklarasikan userName di luar fungsi spinWheel
+
+firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+        // User is signed in
+        const displayName = user.displayName || 'Unknown';
+        const email = user.email || 'Unknown';
+        updateUserInfo(displayName, email);
+        getUserCoins(user.uid);
+        
+        // Simpan nama pengguna ke dalam variabel userName
+        userName = displayName;
+    } else {
+        // No user is signed in
+        console.log('No user is signed in.');
+    }
+});
+
+function spinWheel() {
     const currentCoins = parseInt(coinCountSpan.textContent);
     if (currentCoins >= 15) {
         const confirmPlay = confirm("Anda yakin ingin memutar roda hadiah?");
@@ -375,11 +380,13 @@ function showRewardInfo() {
                                     }
                                 }
 
+                                // Update UI with selected reward
                                 const rewardText = `Hadiah: ${selectedReward}`;
                                 const qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(rewardText);
-
-                                // Display the reward as QR code
                                 rewardDisplayDiv.innerHTML = `<img src="${qrCodeUrl}" alt="QR Code Reward">`;
+
+                                // Send reward information to Firestore collections
+                                sendRewardInfoToFirestore(uid, selectedReward);
 
                                 // Enable the button again after animation ends
                                 document.querySelector('button').disabled = false;
@@ -412,6 +419,35 @@ function showRewardInfo() {
     } else {
         alert("Maaf, Anda tidak memiliki cukup koin untuk memainkan roda hadiah.");
     }
+}
+
+// Function to send reward information to Firestore collections
+function sendRewardInfoToFirestore(uid, rewardName) {
+    // Send reward information to user's admin history collection
+    const userExchangeHistoryRef = firebase.firestore().collection('riwayat_admin').doc(uid);
+    userExchangeHistoryRef.collection('tukar').add({
+        giftName: rewardName,
+        giftCost: 15, // Menggunakan 15 sebagai biaya hadiah
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        console.log("Reward information sent to user's admin history collection.");
+    }).catch(error => {
+        console.error("Error sending reward information to user's admin history collection:", error);
+    });
+
+    // Send reward information to public history collection
+    const publicExchangeHistoryRef = firebase.firestore().collection('riwayat_publik');
+    publicExchangeHistoryRef.add({
+        userId: uid,
+        giftName: rewardName,
+        userName: userName, // Gunakan userName di sini
+        giftCost: 15, // Menggunakan 15 sebagai biaya hadiah
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        console.log("Reward information sent to public history collection.");
+    }).catch(error => {
+        console.error("Error sending reward information to public history collection:", error);
+    });
 }
 
     

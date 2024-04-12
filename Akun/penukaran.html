@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tukar Koin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .coin-info-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 50px;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .card-header h2 {
+            color: #333333;
+        }
+
+        .coin-info {
+            font-size: 16px;
+        }
+
+        .coin-info p {
+            margin-bottom: 10px;
+        }
+
+     .exchange-options {
+    display: flex;
+    flex-wrap: nowrap; /* Tetapkan flex-wrap ke nowrap untuk mencegah pemutusan baris */
+    overflow-x: auto; /* Aktifkan overflow-x agar dapat di-scroll secara horizontal */
+    -webkit-overflow-scrolling: touch; /* Aktifkan scrolling lancar di perangkat iOS */
+    margin-bottom: 20px; /* Tambahkan margin bawah agar tombol di bawahnya tidak tertutup oleh scrollbar */
+}
+
+.exchange-option {
+    flex: 0 0 auto; /* Tetapkan fleksibilitas ke auto agar ukuran tetap */
+    width: 200px; /* Tetapkan ukuran tetap untuk setiap kartu */
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin-right: 20px; /* Tambahkan margin kanan untuk memisahkan kartu */
+}
+
+
+
+.exchange-option:hover {
+    transform: translateY(-5px); /* Efek angkat sedikit saat hover */
+}
+
+.exchange-option h2 {
+    color: #333;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.exchange-option p {
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.exchange-option button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Animasi saat hover */
+}
+
+.exchange-option button:hover {
+    background-color: #0056b3; /* Warna saat hover */
+}
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .floating-alert {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: none;
+            z-index: 999;
+        }
+        .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8); /* Ubah nilai alpha untuk transparansi */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #007bff; /* Warna border kiri sesuaikan dengan tema Anda */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite; /* Animasi rotasi */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.navigation {
+            position: fixed;
+            bottom: 5px; /* Ubah jarak dari bawah sesuai kebutuhan */
+            left: 50%; /* Posisikan di tengah */
+            transform: translateX(-50%); /* Geser sejauh setengah lebar elemen */
+            width: 300px; /* Lebarkan sesuai konten */
+            height: 45px;
+            background-color: #000000df;
+            display: flex;
+            justify-content: space-between;
+            padding: 0px;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+            border-radius: 9px;
+        }
+
+        .navigation button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            padding: 0 35px; /* Tambahkan padding ke kiri dan kanan */
+            color: white; /* Ubah warna teks menjadi putih */
+        }
+
+        .navigation a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 35px;
+            cursor: pointer;
+        }
+
+        .navigation a i {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+     <!-- Tombol navigasi -->
+<div class="navigation">
+    <a href="javascript:history.back()" id="login-button">
+        <i class="fas fa-sign-in-alt"></i>
+    </a>
+    <a href="https://toko-privat-github-io.vercel.app" id="gift-button">
+        <i class="fas fa-home"></i>
+    </a>
+    <a href="https://toko-privat-github-io.vercel.app/Akun/hadiah.html" id="gift-button">
+        <i class="fas fa-gift"></i>
+    </a>
+</div>
+    <div class="container">
+        <h1>Tukar Koin dengan Hadiah</h1>
+        <div class="coin-info-card">
+            <div class="card-header">
+                <h2>Informasi Akun</h2>
+            </div>
+            <div class="card-body">
+                <div class="coin-info">
+                    <p>Jumlah koin Anda: <span id="coin-count">0</span></p>
+                    <p>Nama Pengguna: <span id="user-name"></span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="exchange-options">
+            <!-- Opsi tukar hadiah ditambahkan secara dinamis menggunakan JavaScript -->
+        </div>
+    </div>
+
+    <!-- Tambahkan elemen untuk pesan sukses -->
+   <div class="loading-overlay" style="display: none;">
+    <div class="loading-spinner"></div>
+</div>
+<div class="floating-alert" style="display: none;"></div>
+
+
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+
+    <script>
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+            authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+            projectId: "toko-online-ku-8be4a",
+            storageBucket: "toko-online-ku-8be4a.appspot.com",
+            messagingSenderId: "714682286460",
+            appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+            measurementId: "G-7RS1N1FT8Z"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        // Fungsi untuk menampilkan opsi tukar hadiah
+        function displayExchangeOptions() {
+            const exchangeOptionsContainer = document.querySelector('.exchange-options');
+
+            // Kosongkan container terlebih dahulu
+            exchangeOptionsContainer.innerHTML = '';
+
+            // Daftar hadiah
+            const gifts = [
+                { name: "70💎 Free Fire", cost: 30 },
+                { name: "12💎 Free Fire", cost: 25 },
+                { name: "5💎 Free Fire", cost: 18 }
+            ];
+
+            // Tampilkan daftar hadiah
+            gifts.forEach(gift => {
+                const { name, cost } = gift;
+
+                const exchangeOption = document.createElement('div');
+                exchangeOption.classList.add('exchange-option');
+                exchangeOption.innerHTML = `
+                    <h2>${name}</h2>
+                    <p>${cost} Koin</p>
+                    <button onclick="exchange('${name}', ${cost})">Tukar</button>
+                `;
+
+                exchangeOptionsContainer.appendChild(exchangeOption);
+            });
+        }
+
+        // Fungsi untuk mendapatkan nama pengguna dan jumlah koin
+        function getUserData() {
+            const user = firebase.auth().currentUser;
+            if (user) {
+                const userName = user.displayName || 'Nama Pengguna';
+                document.getElementById('user-name').innerText = userName;
+
+                const userId = user.uid;
+                const userProfileRef = firebase.firestore().collection('profiles').doc(userId);
+                userProfileRef.get().then(doc => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        const userPoints = userData.points || 0;
+                        document.getElementById('coin-count').innerText = userPoints; // Menampilkan jumlah koin
+                    } else {
+                        console.log("No such document!");
+                    }
+                }).catch(error => {
+                    console.log("Error getting user profile:", error);
+                });
+            } else {
+                console.error("No user is signed in.");
+            }
+        }
+
+        function exchange(giftName, giftCost) {
+    // Tampilkan overlay loading
+    const loadingOverlay = document.querySelector('.loading-overlay');
+    loadingOverlay.style.display = 'flex';
+
+    const user = firebase.auth().currentUser;
+    const userId = user.uid;
+    const userRef = firebase.firestore().collection('profiles').doc(userId);
+
+    // Mendapatkan informasi koin pengguna dari Firestore
+    userRef.get().then(doc => {
+        if (doc.exists) {
+            const userData = doc.data();
+            const userPoints = userData.points || 0;
+
+            // Mendapatkan nama pengguna
+            const userName = user.displayName || 'Nama Pengguna';
+
+            // Memeriksa apakah pengguna memiliki cukup koin untuk menukar hadiah
+            if (userPoints >= giftCost) {
+                // Mengurangi jumlah koin pengguna
+                const updatedPoints = userPoints - giftCost;
+
+                // Mengirim informasi tentang hadiah yang ditukar ke koleksi riwayat pengguna
+                const userExchangeHistoryRef = firebase.firestore().collection('riwayat_admin').doc(userId);
+                userExchangeHistoryRef.collection('tukar').add({
+                    giftName: giftName,
+                    giftCost: giftCost,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    // Mengirim informasi tentang hadiah yang ditukar ke koleksi riwayat publik
+                    const publicExchangeHistoryRef = firebase.firestore().collection('riwayat_publik');
+                    publicExchangeHistoryRef.add({
+                        userId: userId,
+                        userName: userName,
+                        giftName: giftName,
+                        giftCost: giftCost,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
+                        // Memperbarui jumlah koin pengguna di Firestore
+                        userRef.update({ points: updatedPoints }).then(() => {
+                            // Menampilkan pesan sukses atau melakukan tindakan lain yang diperlukan
+                            console.log(`Hadiah ${giftName} berhasil ditukar!`);
+
+                            // Memperbarui tampilan jumlah koin pengguna setelah tukar hadiah berhasil
+                            document.getElementById('coin-count').innerText = updatedPoints;
+
+                            // Sembunyikan overlay loading setelah pertukaran selesai
+                            loadingOverlay.style.display = 'none';
+
+                            // Tampilkan pesan berhasil
+                            showSuccessMessage();
+                        }).catch(error => {
+                            console.error("Error updating user points:", error);
+                        });
+                    }).catch(error => {
+                        console.error("Error adding public exchange history:", error);
+                    });
+                }).catch(error => {
+                    console.error("Error adding user exchange history:", error);
+                });
+            } else {
+                console.log("Insufficient points to exchange for this gift.");
+                // Sembunyikan overlay loading jika koin tidak mencukupi
+                loadingOverlay.style.display = 'none';
+                // Tampilkan pesan peringatan
+                showInsufficientPointsMessage();
+            }
+        } else {
+            console.log("No such document!");
+            // Sembunyikan overlay loading jika tidak ada dokumen
+            loadingOverlay.style.display = 'none';
+        }
+    }).catch(error => {
+        console.log("Error getting user profile:", error);
+        // Sembunyikan overlay loading jika terjadi kesalahan
+        loadingOverlay.style.display = 'none';
+    });
+}
+
+
+
+function showSuccessMessage() {
+    const floatingAlert = document.querySelector('.floating-alert');
+    floatingAlert.textContent = 'Hadiah berhasil ditukar!'; // Set text content
+    floatingAlert.style.display = 'block'; // Show the floating alert
+
+    // Hide the floating alert after a certain duration
+    setTimeout(() => {
+        floatingAlert.style.display = 'none'; // Hide the floating alert
+    }, 3000); // Duration in milliseconds (e.g., 3000ms = 3 seconds)
+}
+
+// Fungsi untuk menampilkan pesan peringatan koin tidak mencukupi
+function showInsufficientPointsMessage() {
+    const floatingAlert = document.querySelector('.floating-alert');
+    floatingAlert.textContent = 'Koin tidak mencukupi untuk menukar hadiah.'; // Atur isi teks
+    floatingAlert.style.display = 'block'; // Tampilkan pesan peringatan
+
+    // Sembunyikan pesan peringatan setelah beberapa waktu
+    setTimeout(() => {
+        floatingAlert.style.display = 'none'; // Sembunyikan pesan peringatan
+    }, 3000); // Durasi dalam milidetik (misalnya, 3000ms = 3 detik)
+}
+
+// Listener untuk mendeteksi perubahan status pengguna
+firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+        // Jika pengguna masuk, tampilkan opsi tukar hadiah dan informasi pengguna
+        displayExchangeOptions();
+        getUserData();
+    } else {
+        // Jika pengguna belum masuk, arahkan ke halaman login
+        window.location.href = "login.html";
+    }
+});
+    </script>
+</body>
+</html>

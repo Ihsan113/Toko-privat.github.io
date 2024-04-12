@@ -366,13 +366,43 @@ margin-top: 22px;
 
 
 
+.history-btn {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 10px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 10px; /* Jarak antara tombol dan atas container */
+    margin-right: 65px; /* Jarak antara tombol dan kanan container */
+}
 
+
+.history-btn i {
+    margin-right: 0px;
+}
+
+/* CSS untuk hiasan di pojok kanan atas */
+.corner-decoration {
+    width: 20px;
+    height: 20px;
+    background-color: red; /* Ganti dengan warna atau gambar sesuai kebutuhan */
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    border-radius: 5
+    
 
     </style>
 </head>
 
 <body>
 <header>
+    <button class="history-btn" onclick="window.location.href='Akun/riwayatpublik.html'">
+    <i class="fas fa-history"></i> Riwayat
+</button>
     <h2>Toko Online Bu Eti</h2>
    
     <div id="user-info"></div>
