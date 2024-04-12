@@ -13,33 +13,27 @@
             background-color: #f2f2f2;
         }
 
-       .container {
-    max-width: 400px;
-    width: 84%;
-    margin: auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    display: flex; /* Menjadikan container flex container */
-    flex-direction: column; /* Menjadikan child elements berada dalam satu kolom */
-    justify-content: center; /* Menengahkan secara horizontal */
-    align-items: center; /* Menengahkan secara vertikal */
-    position: absolute; /* Mengubah posisi menjadi absolut */
-    top: 50%; /* Menempatkan di tengah vertikal */
-    left: 50%; /* Menempatkan di tengah horizontal */
-    transform: translate(-50%, -50%); /* Menggeser posisi ke tengah */
-}
+        .container {
+            max-width: 400px;
+            width: 84%;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex; /* Menjadikan container flex container */
+            flex-direction: column; /* Menjadikan child elements berada dalam satu kolom */
+            justify-content: center; /* Menengahkan secara horizontal */
+            align-items: center; /* Menengahkan secara vertikal */
+            position: absolute; /* Mengubah posisi menjadi absolut */
+            top: 50%; /* Menempatkan di tengah vertikal */
+            left: 50%; /* Menempatkan di tengah horizontal */
+            transform: translate(-50%, -50%); /* Menggeser posisi ke tengah */
+        }
 
-
-       .save {
-   background-color: 8px
-   padding: 6px;
-   }
-   
         .profile-header {
             text-align: center;
-            margin-bottom: 90px;
+            margin-bottom: 20px;
         }
 
         .profile-header img {
@@ -91,7 +85,7 @@
         .logout-btn:hover {
             background-color: #0056b3;
         }
- 
+
         .progress-bar {
             width: 100%;
             background-color: #ddd;
@@ -106,139 +100,159 @@
             width: 0;
             transition: width 0.5s ease;
         }
+
+        .navigation {
+            position: fixed;
+            bottom: 5px; /* Ubah jarak dari bawah sesuai kebutuhan */
+            left: 50%; /* Posisikan di tengah */
+            transform: translateX(-50%); /* Geser sejauh setengah lebar elemen */
+            width: 300px; /* Lebarkan sesuai konten */
+            height: 45px;
+            background-color: #000000df;
+            display: flex;
+            justify-content: space-between;
+            padding: 0px;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+            border-radius: 9px;
+        }
+
+        .navigation button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            padding: 0 35px; /* Tambahkan padding ke kiri dan kanan */
+            color: white; /* Ubah warna teks menjadi putih */
+        }
+
+        .navigation a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 35px;
+            cursor: pointer;
+        }
+
+        .navigation a i {
+            font-size: 16px;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%); /* Memindahkan elemen ke tengah */
+            background-color: rgba(0, 0, 0, 0.5); /* Warna hitam dengan opasitas 50% */
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .atom {
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+
+        .dot {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            animation: orbit 2s linear infinite, spin 2s linear infinite, pulse 2s ease-in-out infinite;
+        }
+
+        .dot:nth-child(1) {
+            top: calc(50% - 40px);
+            left: calc(50% - 10px);
+            transform-origin: center center;
+            background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+            box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+        }
+
+        .dot:nth-child(2) {
+            top: calc(50% + 20px);
+            left: calc(50% - 10px);
+            transform-origin: center center;
+            background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+            box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+        }
+
+        .dot:nth-child(3) {
+            top: calc(50% - 10px);
+            left: calc(50% - 40px);
+            transform-origin: center center;
+            background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+            box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+        }
+
+        .dot:nth-child(4) {
+            top: calc(50% - 10px);
+            left: calc(50% + 20px);
+            transform-origin: center center;
+            background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+            box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+        }
+
+        @keyframes orbit {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
         
-         .navigation {
-    position: fixed;
-    bottom: 5px; /* Ubah jarak dari bawah sesuai kebutuhan */
-    left: 50%; /* Posisikan di tengah */
-    transform: translateX(-50%); /* Geser sejauh setengah lebar elemen */
-    width: 300px; /* Lebarkan sesuai konten */
-    height: 45px;
-    background-color: #000000df;
-    display: flex;
-    justify-content: space-between;
-    padding: 0px;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    z-index: 999;
-    border-radius: 9px;
+        .transfer-btn {
+    background-color: #007bff; /* Warna latar belakang biru */
+    color: white; /* Warna teks putih */
+    padding: 10px 20px; /* Padding 10px atas dan bawah, 20px kiri dan kanan */
+    border: none; /* Hapus border */
+    border-radius: 5px; /* Sudut membulat */
+    cursor: pointer; /* Kursor menunjukkan bisa diklik */
+    margin-bottom: 20px; /* Jarak bawah */
+    display: flex; /* Menjadikan konten dalam bentuk flexbox */
+    justify-content: center; /* Tengahkan teks horizontal */
+    align-items: center; /* Tengahkan teks vertikal */
 }
 
-.navigation button {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    outline: none;
-    padding: 0 35px; /* Tambahkan padding ke kiri dan kanan */
-    color: white; /* Ubah warna teks menjadi putih */
+.transfer-btn i {
+    margin-right: 5px; /* Jarak kanan ikon */
 }
-
-.navigation a { 
-color: white; 
-text-decoration: none; 
-display: flex; 
-align-items: center; 
-justify-content: center; 
-padding: 0 35px; 
-cursor: pointer; 
-} 
-
-.navigation a i { 
-font-size: 16px; 
-}
-
-.loading-overlay {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 100%;
-    height: 100%;
-    transform: translate(-50%, -50%); /* Memindahkan elemen ke tengah */
-    background-color: rgba(0, 0, 0, 0.5); /* Warna hitam dengan opasitas 50% */
-    z-index: 9999;
-    display: flex; 
-    justify-content: center; 
-    align-items: center;
-}
-
-.atom {
-    position: relative;
-    width: 40px;
-    height: 40px;
-}
-
-.dot {
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    animation: orbit 2s linear infinite, spin 2s linear infinite, pulse 2s ease-in-out infinite;
-}
-
-.dot:nth-child(1) {
-    top: calc(50% - 40px);
-    left: calc(50% - 10px);
-    transform-origin: center center;
-    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
-    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
-}
-
-.dot:nth-child(2) {
-    top: calc(50% + 20px);
-    left: calc(50% - 10px);
-    transform-origin: center center;
-    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
-    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
-}
-
-.dot:nth-child(3) {
-    top: calc(50% - 10px);
-    left: calc(50% - 40px);
-    transform-origin: center center;
-    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
-    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
-}
-
-.dot:nth-child(4) {
-    top: calc(50% - 10px);
-    left: calc(50% + 20px);
-    transform-origin: center center;
-    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
-    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
-}
-
-@keyframes orbit {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-}
-
 
     </style>
 </head>
 <body>
-    
-   <div id="loading-overlay" class="loading-overlay">
-    <div class="atom"> <div class="dot"></div> <div class="dot"></div> <div class="dot"></div> <div class="dot"></div>   
+
+<div id="loading-overlay" class="loading-overlay">
+    <div class="atom">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
 </div>
-</div>
-   
+
 <div class="container">
     <div class="profile-header">
         <img id="profile-pic" src="" alt="Profile Picture">
         <br>
         <input type="file" id="profile-pic-input" accept="image/*" style="display: none;">
-        
-       <button onclick="document.getElementById('profile-pic-input').click()" style="
+
+        <button onclick="document.getElementById('profile-pic-input').click()" style="
   background-color: #0b4b88c7; /* Biru */
   color: white; /* Putih */
   padding: 10px 20px; /* Padding */
@@ -248,7 +262,7 @@ font-size: 16px;
   margin-right: 10px; /* Jarak kanan */
 ">Pilih Gambar</button>
 
-        
+
         <button class="save" onclick="saveProfilePicture()" style="
   background-color: #0b4b88c7; /* Green background */
   color: white; /* White text */
@@ -262,10 +276,14 @@ font-size: 16px;
         <h2 id="user-name">Nama Pengguna</h2>
         <p id="user-email">email@example.com</p>
     </div>
-    <div class="profile-info">       
+   <button class="transfer-btn" onclick="window.location.href='transfer.html'">
+    <i class="fas fa-exchange-alt"></i> Transfer Poin
+</button>
+
+    <div class="profile-info">
         <p><i class="fas fa-coins"></i> Poin: <span id="points">0</span></p>
     </div>
-    
+
     <button class="logout-btn" id="logout-btn">Logout</button>
 </div>
 
@@ -274,10 +292,19 @@ font-size: 16px;
 </div>
 
 <!-- Tombol navigasi -->
-<div class="navigation"> <a href="javascript:history.back()" id="login-button">
-    <i class="fas fa-sign-in-alt"></i></a> <a href="https://toko-privat-github-io.vercel.app" id="gift-button">
-        <i class="fas fa-home"></i></a> <a href="https://toko-privat-github-io.vercel.app/Akun/hadiah.html" id="gift-button">
-        <i class="fas fa-gift"></i></a> </div>
+<div class="navigation">
+    <a href="javascript:history.back()" id="login-button">
+        <i class="fas fa-sign-in-alt"></i>
+    </a>
+    <a href="https://toko-privat-github-io.vercel.app" id="gift-button">
+        <i class="fas fa-home"></i>
+    </a>
+    <a href="https://toko-privat-github-io.vercel.app/Akun/hadiah.html" id="gift-button">
+        <i class="fas fa-gift"></i>
+    </a>
+</div>
+
+
 
 <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>

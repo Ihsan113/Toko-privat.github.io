@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Poin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* CSS yang sudah Anda sediakan sebelumnya */
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 84%;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .transfer-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .transfer-section input,
+        .transfer-section button {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .transfer-section button {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .transfer-section button:hover {
+            background-color: #0056b3;
+        }
+
+        .user-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .user-info p {
+            margin: 5px 0;
+        }
+
+        .loading-spinner {
+            display: none;
+            margin-bottom: 10px;
+        }
+
+        .loading-spinner.show {
+            display: inline-block;
+        }
+
+        .loading-spinner .spinner {
+            animation: spin 1s linear infinite;
+            font-size: 24px;
+            color: #555;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 5px; /* Ubah jarak dari bawah sesuai kebutuhan */
+            left: 50%; /* Posisikan di tengah */
+            transform: translateX(-50%); /* Geser sejauh setengah lebar elemen */
+            width: 300px; /* Lebarkan sesuai konten */
+            height: 45px;
+            background-color: #000000df;
+            display: flex;
+            justify-content: space-between;
+            padding: 0px;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+            border-radius: 9px;
+        }
+
+        .navigation button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            padding: 0 35px; /* Tambahkan padding ke kiri dan kanan */
+            color: white; /* Ubah warna teks menjadi putih */
+        }
+
+        .navigation a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 35px;
+            cursor: pointer;
+        }
+
+        .navigation a i {
+            font-size: 16px;
+        }
+        
+    </style>
+</head>
+<body>
+    
+   <!-- HTML untuk input UID dan jumlah poin untuk transfer -->
+
+<div class="container">
+    <div class="user-info">
+        <h3>Lakukan Transfer Dengan hati hati</h3>
+        <p><strong>Nama:</strong> <span id="user-name">...</span></p>
+        <p><strong>UID:</strong> <span id="user-uid">...</span></p>
+        <p><strong>Poin:</strong> <span id="user-points">...</span></p>
+    </div>
+
+    <div class="transfer-section">
+        <h3>Transfer Poin</h3>
+        <input type="text" id="recipient-uid" placeholder="UID Penerima">
+        <input type="number" id="transfer-amount" placeholder="Jumlah Poin">
+        <button onclick="transferPoints()">Kirim</button>
+        <div class="loading-spinner" id="transfer-loading">
+            <i class="fas fa-spinner fa-spin spinner"></i>
+        </div>
+        <p id="transfer-token-message" style="display: none;">Token Transfer: <span id="transfer-token"></span></p>
+        <button id="copy-token-button" style="display: none;" onclick="copyToken()">Salin Token</button>
+    </div>
+    
+    <div class="transfer-section">
+        <hr>
+        <h3>Ambil Poin</h3>
+        <input type="text" id="claim-token" placeholder="Token Transfer">
+        <button onclick="claimPoints()">Ambil</button>
+        <div class="loading-spinner" id="claim-loading">
+            <i class="fas fa-spinner fa-spin spinner"></i>
+        </div>
+    </div>
+</div>
+<!-- Tombol navigasi -->
+<div class="navigation">
+    <a href="javascript:history.back()" id="login-button">
+        <i class="fas fa-sign-in-alt"></i>
+    </a>
+    <a href="https://toko-privat-github-io.vercel.app" id="gift-button">
+        <i class="fas fa-home"></i>
+    </a>
+     <a href="profil.html" id="profile-button">
+            <i class="fas fa-user"></i></a> </div>
+
+<!-- Script JavaScript untuk transfer poin dengan Firebase -->
+
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+<script>
+    // Konfigurasi Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+        authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+        projectId: "toko-online-ku-8be4a",
+        storageBucket: "toko-online-ku-8be4a.appspot.com",
+        messagingSenderId: "714682286460",
+        appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+        measurementId: "G-7RS1N1FT8Z"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Menampilkan informasi pengguna saat halaman dimuat
+    firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+            const currentUser = firebase.auth().currentUser;
+            const userName = currentUser.displayName;
+            const userId = currentUser.uid;
+
+            document.getElementById('user-name').innerText = userName;
+            document.getElementById('user-uid').innerText = userId;
+
+            const userProfileRef = firebase.firestore().collection('profiles').doc(userId);
+            userProfileRef.get().then(doc => {
+                if (doc.exists) {
+                    const userData = doc.data();
+                    const userPoints = userData.points || 0;
+                    document.getElementById('user-points').innerText = userPoints;
+                } else {
+                    console.log("No such document!");
+                }
+            }).catch(error => {
+                console.error("Error getting user profile:", error);
+            });
+        } else {
+            console.error("No user is signed in.");
+        }
+    });
+
+    function toggleLoadingSpinner(elementId, show) {
+        const spinner = document.getElementById(elementId);
+        if (show) {
+            spinner.classList.add('show');
+        } else {
+            spinner.classList.remove('show');
+        }
+    }
+
+    function transferPoints() {
+        toggleLoadingSpinner('transfer-loading', true);
+
+        const recipientUid = document.getElementById('recipient-uid').value;
+        const transferAmount = parseInt(document.getElementById('transfer-amount').value);
+
+        if (recipientUid && transferAmount) {
+            const currentUser = firebase.auth().currentUser;
+            const currentUserUid = currentUser.uid;
+            const currentUserPointsRef = firebase.firestore().collection('profiles').doc(currentUserUid);
+
+            currentUserPointsRef.get().then(doc => {
+                if (doc.exists) {
+                    const userData = doc.data();
+                    const currentUserPoints = userData.points || 0;
+
+                    if (currentUserPoints >= transferAmount) {
+                        currentUserPointsRef.update({
+                            points: firebase.firestore.FieldValue.increment(-transferAmount)
+                        }).then(() => {
+                            console.log("Poin berhasil dikurangi dari pengguna saat ini.");
+
+                            const transferCollectionRef = firebase.firestore().collection('transfer');
+                            const token = Math.random().toString(36).substr(2, 9); // Generate random token
+                            
+                            transferCollectionRef.add({
+                                senderUid: currentUserUid,
+                                recipientUid: recipientUid,
+                                amount: transferAmount,
+                                token: token
+                            }).then(() => {
+                                console.log("Data transfer berhasil ditambahkan.");
+                                alert("Poin berhasil ditransfer!");
+                                document.getElementById('transfer-token').innerText = token;
+                                document.getElementById('transfer-token-message').style.display = 'block';
+                                document.getElementById('copy-token-button').style.display = 'block';
+                                toggleLoadingSpinner('transfer-loading', false);
+                            }).catch(error => {
+                                console.error("Error adding transfer data:", error);
+                                toggleLoadingSpinner('transfer-loading', false);
+                            });
+                        }).catch(error => {
+                            console.error("Error updating current user's points:", error);
+                            toggleLoadingSpinner('transfer-loading', false);
+                        });
+                    } else {
+                        alert("Pengguna saat ini tidak memiliki cukup poin untuk mentransfer.");
+                        toggleLoadingSpinner('transfer-loading', false);
+                    }
+                } else {
+                    console.log("No such document!");
+                    toggleLoadingSpinner('transfer-loading', false);
+                }
+            }).catch(error => {
+                console.error("Error getting current user's points:", error);
+                toggleLoadingSpinner('transfer-loading', false);
+            });
+        } else {
+            alert("Harap masukkan UID penerima dan jumlah poin yang ingin ditransfer.");
+            toggleLoadingSpinner('transfer-loading', false);
+        }
+    }
+
+    function copyToken() {
+        const tokenText = document.getElementById('transfer-token');
+        const token = tokenText.innerText;
+        
+        const tempInput = document.createElement('input');
+        tempInput.value = token;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+
+        alert("Token berhasil disalin: " + token);
+    }
+
+    function claimPoints() {
+        toggleLoadingSpinner('claim-loading', true);
+
+        const claimToken = document.getElementById('claim-token').value;
+
+        if (claimToken) {
+            const transferCollectionRef = firebase.firestore().collection('transfer');
+
+            transferCollectionRef.where('token', '==', claimToken).get().then(querySnapshot => {
+                if (!querySnapshot.empty) {
+                    querySnapshot.forEach(doc => {
+                        const transferData = doc.data();
+                        const { senderUid, recipientUid, amount } = transferData;
+
+                        if (recipientUid === firebase.auth().currentUser.uid) {
+                            const recipientPointsRef = firebase.firestore().collection('profiles').doc(recipientUid);
+
+                            recipientPointsRef.update({
+                                points: firebase.firestore.FieldValue.increment(amount)
+                            }).then(() => {
+                                console.log("Poin berhasil ditambahkan ke penerima.");
+
+                                // Menghapus data transfer setelah poin diambil
+                                doc.ref.delete().then(() => {
+                                    console.log("Data transfer berhasil dihapus setelah poin diambil.");
+                                    alert("Poin berhasil diambil!");
+                                    document.getElementById('claim-token').value = ''; // Mengosongkan input token setelah poin diambil
+                                    toggleLoadingSpinner('claim-loading', false);
+                                }).catch(error => {
+                                    console.error("Error deleting transfer data:", error);
+                                    toggleLoadingSpinner('claim-loading', false);
+                                });
+                            }).catch(error => {
+                                console.error("Error updating recipient's points:", error);
+                                toggleLoadingSpinner('claim-loading', false);
+                            });
+                        } else {
+                            alert("Token tidak valid untuk pengguna saat ini.");
+                            toggleLoadingSpinner('claim-loading', false);
+                        }
+                    });
+                } else {
+                    alert("Token tidak ditemukan.");
+                    toggleLoadingSpinner('claim-loading', false);
+                }
+            }).catch(error => {
+                console.error("Error getting transfer data:", error);
+                toggleLoadingSpinner('claim-loading', false);
+            });
+        } else {
+            alert("Harap masukkan token transfer untuk mengambil poin.");
+            toggleLoadingSpinner('claim-loading', false);
+        }
+    }
+</script>
+</body>
+</html>
