@@ -385,99 +385,116 @@ function updatePoints(pointsToAdd) {
         document.getElementById("verification-code-container").style.display = "block";
     });
 
-    // Tombol Konfirmasi
+  // Tombol Konfirmasi
 const confirmButton = document.getElementById("confirm-button");
 confirmButton.addEventListener("click", () => {
-    const verificationCode = document.getElementById("verification-code-input").value;
-    const verificationCodeRef = firebase.firestore().collection('tokens').where('verificationCode', '==', verificationCode);
+    // Menampilkan peringatan
+    if (confirm("Apakah Anda yakin ingin melanjutkan?")) {
+        confirmButton.disabled = true; // Menonaktifkan tombol konfirmasi
+        confirmButton.style.backgroundColor = "gray"; // Mengubah warna tombol menjadi abu-abu
+        confirmButton.style.cursor = "not-allowed"; // Mengubah kursor menjadi tidak diizinkan
+        const verificationCode = document.getElementById("verification-code-input").value;
+        const verificationCodeRef = firebase.firestore().collection('tokens').where('verificationCode', '==', verificationCode);
+        const loadingIndicator = document.getElementById("loading-indicator");
+        const errorMessage = document.getElementById("error-message");
+        const successMessage = document.getElementById("success-message");
 
-    const loadingIndicator = document.getElementById("loading-indicator");
-    const errorMessage = document.getElementById("error-message");
-    const successMessage = document.getElementById("success-message");
+        loadingIndicator.style.display = "block"; // Tampilkan indikator loading
 
-    loadingIndicator.style.display = "block"; // Tampilkan indikator loading
+        verificationCodeRef.get()
+            .then((querySnapshot) => {
+                if (!querySnapshot.empty) {
+                    const doc = querySnapshot.docs[0];
+                    const storedVerificationCode = doc.data().verificationCode;
 
-    verificationCodeRef.get()
-        .then((querySnapshot) => {
-            if (!querySnapshot.empty) {
-                const doc = querySnapshot.docs[0];
-                const storedVerificationCode = doc.data().verificationCode;
+                    if (verificationCode === storedVerificationCode) {
+                        const userCartRef = firebase.firestore().collection('carts').doc(firebase.auth().currentUser.uid);
 
-                if (verificationCode === storedVerificationCode) {
-                    const userCartRef = firebase.firestore().collection('carts').doc(firebase.auth().currentUser.uid);
+                        // Dapatkan produk dari keranjang pengguna
+                        userCartRef.get()
+                            .then((cartDoc) => {
+                                const cartData = cartDoc.data();
+                                const products = cartData.products || [];
 
-                    // Dapatkan produk dari keranjang pengguna
-                    userCartRef.get()
-                        .then((cartDoc) => {
-                            const cartData = cartDoc.data();
-                            const products = cartData.products || [];
+                                // Hitung total poin yang akan dikirim
+                                const totalPoints = calculateTotalPoints(products);
 
-                            // Hitung total poin yang akan dikirim
-                            const totalPoints = calculateTotalPoints(products);
+                                // Dapatkan nama pengguna dari objek user
+                                const userName = firebase.auth().currentUser.displayName;
 
-                            // Dapatkan nama pengguna dari objek user
-                            const userName = firebase.auth().currentUser.displayName;
+                                // Sisipkan nama pengguna ke dalam objek produk
+                                products.forEach(product => {
+                                    product.buyerName = userName; // Menambahkan nama pembeli ke dalam objek produk
+                                });
 
-                            // Sisipkan nama pengguna ke dalam objek produk
-                            products.forEach(product => {
-                                product.buyerName = userName; // Menambahkan nama pembeli ke dalam objek produk
-                            });
+                                // Kirim informasi produk ke koleksi Alality di Firebase Firestore
+                                products.forEach(product => {
+                                    const currentDate = new Date().toISOString(); // Dapatkan tanggal dan waktu saat ini dalam format ISO string
+                                    product.date = currentDate; // Tambahkan tanggal pembelian ke dalam objek produk
 
-                          // Kirim informasi produk ke koleksi Alality di Firebase Firestore
-products.forEach(product => {
-    const currentDate = new Date().toISOString(); // Dapatkan tanggal dan waktu saat ini dalam format ISO string
-    product.date = currentDate; // Tambahkan tanggal pembelian ke dalam objek produk
-
-    const productRef = firebase.firestore().collection('alality').doc(); // Buat dokumen baru di koleksi Alality
-    productRef.set(product) // Kirim informasi produk ke Firebase Firestore
-        .then(() => {
-            console.log("Product information sent to Firestore successfully.");
-        })
-        .catch((error) => {
-            console.error("Error sending product information to Firestore:", error);
-        });
-});
-
-
-                            // Kirim poin ke dokumen profil pengguna
-                            updatePoints(totalPoints)
-                                .then(() => {
-                                    // Setelah poin berhasil dikirim, hapus produk dari keranjang
-                                    userCartRef.update({ products: [] })
+                                    const productRef = firebase.firestore().collection('alality').doc(); // Buat dokumen baru di koleksi Alality
+                                    productRef.set(product) // Kirim informasi produk ke Firebase Firestore
                                         .then(() => {
-                                            // Hapus token verifikasi
-                                            doc.ref.delete()
-                                                .then(() => {
-                                                    successMessage.style.display = "block"; // Tampilkan pesan sukses
-                                                })
-                                                .catch((error) => {
-                                                    console.error("Error deleting verification token:", error);
-                                                });
+                                            console.log("Product information sent to Firestore successfully.");
                                         })
                                         .catch((error) => {
-                                            console.error("Error deleting products from cart:", error);
+                                            console.error("Error sending product information to Firestore:", error);
                                         });
-                                })
-                                .catch((error) => {
-                                    console.error("Error updating user points:", error);
                                 });
-                        })
-                        .catch((error) => {
-                            console.error("Error getting cart document:", error);
-                        });
+
+                                // Kirim poin ke dokumen profil pengguna
+                                updatePoints(totalPoints)
+                                    .then(() => {
+                                        // Setelah poin berhasil dikirim, hapus produk dari keranjang
+                                        userCartRef.update({ products: [] })
+                                            .then(() => {
+                                                // Hapus token verifikasi
+                                                doc.ref.delete()
+                                                    .then(() => {
+                                                        successMessage.style.display = "block"; // Tampilkan pesan sukses
+                                                    })
+                                                    .catch((error) => {
+                                                        console.error("Error deleting verification token:", error);
+                                                    })
+                                                    .finally(() => {
+                                                        // Mengembalikan tombol konfirmasi ke kondisi default setelah proses selesai
+                                                        confirmButton.disabled = false;
+                                                        confirmButton.style.backgroundColor = ""; // Mengembalikan warna tombol ke default
+                                                        confirmButton.style.cursor = "pointer"; // Mengembalikan kursor ke default
+                                                    });
+                                            })
+                                            .catch((error) => {
+                                                console.error("Error deleting products from cart:", error);
+                                            });
+                                    })
+                                    .catch((error) => {
+                                        console.error("Error updating user points:", error);
+                                    });
+                            })
+                            .catch((error) => {
+                                console.error("Error getting cart document:", error);
+                            });
+                    } else {
+                        errorMessage.style.display = "block"; // Tampilkan pesan kesalahan untuk kode verifikasi yang tidak valid
+                    }
                 } else {
-                    errorMessage.style.display = "block"; // Tampilkan pesan kesalahan untuk kode verifikasi yang tidak valid
+                    // Menampilkan peringatan hanya jika kode verifikasi tidak valid
+                    if (!verificationCode) {
+                        alert("Mohon masukkan kode verifikasi.");
+                    }
+                    else {
+                        // Menampilkan peringatan jika kode verifikasi tidak ditemukan
+                        alert("Kode verifikasi tidak valid.");
+                    }
                 }
-            } else {
-                errorMessage.style.display = "block"; // Tampilkan pesan kesalahan untuk snapshot query kosong
-            }
-        })
-        .catch((error) => {
-            console.error("Error getting verification code document:", error);
-        })
-        .finally(() => {
-            loadingIndicator.style.display = "none"; // Sembunyikan indikator loading setelah proses selesai
-        });
+            })
+            .catch((error) => {
+                console.error("Error getting verification code document:", error);
+            })
+            .finally(() => {
+                loadingIndicator.style.display = "none"; // Sembunyikan indikator loading setelah proses selesai
+            });
+    }
 });
 
     // Tombol Lanjutkan
