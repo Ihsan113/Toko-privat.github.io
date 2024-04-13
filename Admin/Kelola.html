@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Produk Baru</title>
+    <style>
+        /* CSS untuk card produk */
+        .productTable {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .productTable th, .productTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .productTable th {
+            background-color: #f2f2f2;
+        }
+
+        .productImage {
+            max-width: 100px;
+            height: auto;
+        }
+
+        .deleteButton {
+            background-color: #ff6666;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .deleteButton:hover {
+            background-color: #ff4d4d;
+        }
+
+        /* CSS untuk form input */
+        .editFormContainer {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .editFormContainer label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .editFormContainer input[type="text"],
+        .editFormContainer input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .editFormContainer select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .editFormContainer input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .editFormContainer input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Container untuk menampilkan produk -->
+    <table class="productTable">
+        <thead>
+            <tr>
+                <th>Nama Produk</th>
+                <th>Harga</th>
+                <th>Poin Bonus</th>
+                <th>URL Gambar Produk</th>
+                <th>Kategori</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="productContainer">
+            <!-- Data produk akan ditampilkan di sini -->
+        </tbody>
+    </table>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+
+    <script>
+        // Inisialisasi Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+            authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+            projectId: "toko-online-ku-8be4a",
+            storageBucket: "toko-online-ku-8be4a.appspot.com",
+            messagingSenderId: "714682286460",
+            appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+            measurementId: "G-7RS1N1FT8Z"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        // Mendapatkan referensi database Firestore
+        const db = firebase.firestore();
+
+        // Menampilkan produk ke dalam tabel
+        function displayProducts() {
+            const productContainer = document.getElementById('productContainer');
+
+            // Menghapus semua baris tabel produk sebelum menampilkan produk baru
+            productContainer.innerHTML = '';
+
+            // Mendapatkan data produk dari Firestore
+            db.collection('products').get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const row = `
+                        <tr>
+                            <td><span id="productName_${doc.id}">${data.name}</span></td>
+                            <td><span id="productPrice_${doc.id}">${data.price}</span></td>
+                            <td><span id="productBonusPoints_${doc.id}">${data.bonusPoints}</span></td>
+                            <td><img src="${data.image}" alt="${data.name}" class="productImage"></td>
+                            <td><span id="productCategory_${doc.id}">${data.category}</span></td>
+                            <td><button class="deleteButton" onclick="deleteProduct('${doc.id}')">Hapus</button></td>
+                        </tr>
+                        <tr>
+                            <td colspan="6">
+                                <div class="editFormContainer" id="editForm_${doc.id}">
+                                    <label for="editProductName_${doc.id}">Nama Produk:</label>
+                                    <input type="text" id="editProductName_${doc.id}" value="${data.name}">
+                                    <label for="editProductPrice_${doc.id}">Harga:</label>
+                                    <input type="number" id="editProductPrice_${doc.id}" value="${data.price}">
+                                    <label for="editProductBonusPoints_${doc.id}">Poin Bonus:</label>
+                                    <input type="number" id="editProductBonusPoints_${doc.id}" value="${data.bonusPoints}">
+                                    <label for="editProductImage_${doc.id}">URL Gambar Produk:</label>
+                                    <input type="url" id="editProductImage_${doc.id}" value="${data.image}">
+                                    <label for="editProductCategory_${doc.id}">Kategori:</label>
+                                    <input type="text" id="editProductCategory_${doc.id}" value="${data.category}">
+                                    <input type="submit" value="Simpan" onclick="saveProduct('${doc.id}')">
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    productContainer.innerHTML += row;
+                });
+            })
+            .catch((error) => {
+                console.error("Error displaying products: ", error);
+            });
+        }
+
+        // Memanggil fungsi displayProducts() agar produk ditampilkan saat halaman dimuat
+        displayProducts();
+
+        // Fungsi untuk menghapus produk dari Firestore
+        function deleteProduct(productId) {
+            if (confirm("Apakah Anda yakin ingin menghapus produk ini?")) {
+                db.collection('products').doc(productId).delete()
+                .then(() => {
+                    console.log("Produk berhasil dihapus");
+                    displayProducts(); // Memperbarui tampilan produk
+                })
+                .catch((error) => {
+                    console.error("Error deleting product: ", error);
+                });
+            }
+        }
+
+        // Fungsi untuk menyimpan perubahan pada produk
+        function saveProduct(productId) {
+            const productName = document.getElementById(`editProductName_${productId}`).value;
+            const productPrice = parseFloat(document.getElementById(`editProductPrice_${productId}`).value);
+            const productBonusPoints = parseInt(document.getElementById(`editProductBonusPoints_${productId}`).value);
+            const productImage = document.getElementById(`editProductImage_${productId}`).value;
+            const productCategory = document.getElementById(`editProductCategory_${productId}`).value;
+
+            // Update data produk di Firestore
+            db.collection('products').doc(productId).update({
+                name: productName,
+                price: productPrice,
+                bonusPoints: productBonusPoints,
+                image: productImage,
+                category: productCategory
+            })
+            .then(() => {
+                console.log("Perubahan produk berhasil disimpan");
+                displayProducts(); // Memperbarui tampilan produk
+            })
+            .catch((error) => {
+                console.error("Error updating product: ", error);
+            });
+        }
+    </script>
+</body>
+</html>

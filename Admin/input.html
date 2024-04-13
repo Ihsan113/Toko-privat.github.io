@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Produk Baru</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="text"], input[type="number"], input[type="url"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <form id="addProductForm">
+        <label for="productName">Nama Produk:</label>
+        <input type="text" id="productName" name="productName" required>
+
+        <label for="productPrice">Harga:</label>
+        <input type="number" id="productPrice" name="productPrice" min="0" required>
+
+        <label for="productBonusPoints">Poin Bonus:</label>
+        <input type="number" id="productBonusPoints" name="productBonusPoints" min="0" required>
+
+        <label for="productImage">URL Gambar Produk:</label>
+        <input type="url" id="productImage" name="productImage" required>
+
+        <label for="productCategory">Kategori Produk:</label>
+        <input type="text" id="productCategory" name="productCategory" required>
+
+        <input type="submit" value="Tambah Produk">
+    </form>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+    <script>
+        // Inisialisasi Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+            authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+            projectId: "toko-online-ku-8be4a",
+            storageBucket: "toko-online-ku-8be4a.appspot.com",
+            messagingSenderId: "714682286460",
+            appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+            measurementId: "G-7RS1N1FT8Z"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        // Mendapatkan referensi database Firestore
+        const db = firebase.firestore();
+
+        // Mendapatkan form
+        const form = document.getElementById('addProductForm');
+
+        // Menambahkan event listener ketika form disubmit
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Mencegah pengiriman form default
+
+            // Mengambil nilai-nilai input dari form
+            const productName = form.productName.value;
+            const productPrice = parseFloat(form.productPrice.value);
+            const productBonusPoints = parseInt(form.productBonusPoints.value);
+            const productImage = form.productImage.value;
+            const productCategory = form.productCategory.value;
+
+            // Menyimpan data produk ke Firestore
+            db.collection('products').add({
+                name: productName,
+                price: productPrice,
+                bonusPoints: productBonusPoints,
+                image: productImage,
+                category: productCategory // Menyimpan kategori produk
+            })
+            .then(function(docRef) {
+                console.log("Produk berhasil ditambahkan dengan ID: ", docRef.id);
+                // Reset form setelah berhasil menambahkan produk
+                form.reset();
+                alert('Produk berhasil ditambahkan!');
+            })
+            .catch(function(error) {
+                console.error("Error menambahkan produk: ", error);
+                alert('Terjadi kesalahan saat menambahkan produk.');
+            });
+        });
+    </script>
+</body>
+</html>

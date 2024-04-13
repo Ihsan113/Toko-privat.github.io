@@ -27,19 +27,28 @@
       margin-top: 50px;
     }
 
-    .admin-nav {
-      display: flex;
-      justify-content: center; /* Posisi tengah secara horizontal */
-      max-width: 800px; /* Lebar maksimum kontainer */
-      margin: 0 auto; /* Posisi tengah horizontal */
-    }
+   .admin-nav {
+  display: flex;
+  flex-wrap: wrap; /* Menggunakan pembungkus fleksibel */
+  justify-content: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
 
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0 10px; /* Margin kanan dan kiri untuk simetris */
-    }
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px; /* Menambahkan margin pada setiap item */
+  max-width: calc(33.33% - 20px); /* Maksimal tiga item dalam satu baris */
+}
+
+@media screen and (max-width: 600px) {
+  .nav-item {
+    max-width: calc(50% - 20px); /* Maksimal dua item dalam satu baris pada layar kecil */
+  }
+}
+
 
     .nav-button {
       background-color: #f0f0f0;
@@ -113,29 +122,44 @@ font-size: 16px;
     <h1>Admin Page</h1>
   </header>
 
-  <div class="admin-nav-wrapper">
+<div class="admin-nav-wrapper">
     <div class="admin-nav">
-      <div class="nav-item">
-        <a href="https://toko-privat-github-io.vercel.app/Admin/Data.html" class="nav-button" onclick="animateButton(this)">
-         <i class="fas fa-chart-line"></i>
-        </a>
-        <div class="nav-text">Data Analisis</div>
-      </div> 
+        <div class="nav-item">
+            <a href="https://toko-privat-github-io.vercel.app/Admin/Data.html" class="nav-button" onclick="animateButton(this)">
+                <i class="fas fa-chart-line"></i>
+            </a>
+            <div class="nav-text">Data Analisis</div>
+        </div> 
 
-      <div class="nav-item">
-        <a href="https://toko-privat-github-io.vercel.app/Admin/admin.html" class="nav-button" onclick="animateButton(this)">
-          <i class="fas fa-code"></i>
-        </a>
-        <div class="nav-text">Buat Token</div>
-      </div>
-      <div class="nav-item">
-        <a href="https://toko-privat-github-io.vercel.app/Akun/riwayatpublik.html" class="nav-button" onclick="animateButton(this)">
-          <i class="fas fa-history"></i>
-        </a>
-        <div class="nav-text">Riwayat Hadiah</div>
-      </div>
+        <div class="nav-item">
+            <a href="https://toko-privat-github-io.vercel.app/Admin/admin.html" class="nav-button" onclick="animateButton(this)">
+                <i class="fas fa-code"></i>
+            </a>
+            <div class="nav-text">Buat Token</div>
+        </div>
+        
+        <div class="nav-item">
+            <a href="https://toko-privat-github-io.vercel.app/Admin/kelola.html" class="nav-button" onclick="animateButton(this)">
+                <i class="fas fa-cogs"></i>
+            </a>
+            <div class="nav-text">Kelola Produk</div>
+        </div>
+
+        <div class="nav-item">
+            <a href="https://toko-privat-github-io.vercel.app/Admin/input.html" class="nav-button" onclick="animateButton(this)">
+                <i class="fas fa-plus-circle"></i>
+            </a>
+            <div class="nav-text">Buat Produk</div>
+        </div>
+        
+        <div class="nav-item">
+            <a href="https://toko-privat-github-io.vercel.app/Akun/riwayatpublik.html" class="nav-button" onclick="animateButton(this)">
+                <i class="fas fa-history"></i>
+            </a>
+            <div class="nav-text">Riwayat Hadiah</div>
+        </div>
     </div>
-  </div>
+</div>
 
 
 <!-- Tombol navigasi -->
