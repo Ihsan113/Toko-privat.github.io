@@ -586,29 +586,30 @@ font-size: 50px;
   
     <!-- JavaScript -->
     <script>
-        // Inisialisasi Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
-            authDomain: "toko-online-ku-8be4a.firebaseapp.com",
-            projectId: "toko-online-ku-8be4a",
-            storageBucket: "toko-online-ku-8be4a.appspot.com",
-            messagingSenderId: "714682286460",
-            appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
-            measurementId: "G-7RS1N1FT8Z"
-        };
+       // Inisialisasi Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+    authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+    projectId: "toko-online-ku-8be4a",
+    storageBucket: "toko-online-ku-8be4a.appspot.com",
+    messagingSenderId: "714682286460",
+    appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+    measurementId: "G-7RS1N1FT8Z"
+};
 
-        firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 
-        // Mendapatkan referensi database Firestore
-        const db = firebase.firestore();
+// Mendapatkan referensi database Firestore
+const db = firebase.firestore();
 
-        // Mendapatkan kontainer produk
-        const productContainer = document.getElementById('productContainer');
+// Mendapatkan kontainer produk
+const productContainer = document.getElementById('productContainer');
 
-        // Menampilkan produk dari Firestore berdasarkan kategori
+// Variabel untuk menyimpan produk dalam setiap kategori
+let categories = {};
+
+// Menampilkan produk dari Firestore berdasarkan kategori
 db.collection('products').get().then((querySnapshot) => {
-    let categories = {}; // Objek untuk menyimpan produk dalam setiap kategori
-
     querySnapshot.forEach((doc) => {
         const productData = doc.data();
         const category = productData.category;
@@ -619,9 +620,17 @@ db.collection('products').get().then((querySnapshot) => {
         }
 
         // Tambahkan produk ke dalam array produk dalam kategori tersebut
-        categories[category].push(productData);
+        categories[category].push({ id: doc.id, ...productData }); // Memasukkan ID dokumen sebagai bagian dari data produk
     });
 
+    // Memuat produk ke dalam tampilan
+    loadProducts();
+}).catch((error) => {
+    console.error("Error retrieving products: ", error);
+});
+
+// Fungsi untuk memuat produk ke dalam tampilan
+function loadProducts() {
     // Buat array baru yang berisi kategori-kategori yang ada
     const categoryNames = Object.keys(categories);
     // Urutkan array kategori secara alfabetis
@@ -649,7 +658,7 @@ db.collection('products').get().then((querySnapshot) => {
                         <p>Harga: Rp.${productData.price}</p>
                         <p>Poin Bonus: ${productData.bonusPoints}&nbsp<i class="fas fa-coins"></i></p>
                     </div>
-                    <button class="add-to-cart"><i class="fas fa-shopping-cart"></i> Tambahkan</button>
+                    <button class="add-to-cart" data-product-id="${productData.id}"><i class="fas fa-shopping-cart"></i> Tambahkan</button>
                 </div>
             `;
             categoryContent.innerHTML += productCard;
@@ -662,80 +671,100 @@ db.collection('products').get().then((querySnapshot) => {
 
     // Menambahkan event listener ke setiap tombol "Tambahkan ke Keranjang"
     const addToCartButtons = document.querySelectorAll('.add-to-cart');
-    addToCartButtons.forEach((button, index) => {
+    addToCartButtons.forEach((button) => {
         button.addEventListener('click', () => {
-            addToCart(categories, index);
+            const productId = button.getAttribute('data-product-id');
+            addToCart(productId);
         });
     });
-}).catch((error) => {
-    console.error("Error retrieving products: ", error);
-});
+}
 
-        // Fungsi untuk menambahkan produk ke keranjang
-        function addToCart(categories, index) {
-            const categoryKeys = Object.keys(categories);
-            let products = [];
-            categoryKeys.forEach(key => {
-                products = products.concat(categories[key]);
-            });
+// Fungsi untuk menambahkan produk ke keranjang
+function addToCart(productId) {
+    const user = firebase.auth().currentUser;
 
-            const selectedProduct = products[index];
-            const user = firebase.auth().currentUser;
+    if (user) {
+        const userId = user.uid;
+        const userCartRef = firebase.firestore().collection('carts').doc(userId);
 
-            if (user) {
-                const userId = user.uid;
-                const userCartRef = firebase.firestore().collection('carts').doc(userId);
-
-                userCartRef.get().then((doc) => {
-                    if (doc.exists) {
-                        // Jika keranjang pengguna sudah ada, tambahkan produk ke keranjang
-                        const cartData = doc.data();
-                        const updatedProducts = [...cartData.products];
-                        const existingProductIndex = updatedProducts.findIndex(product => product.name === selectedProduct.name);
-                        if (existingProductIndex !== -1) {
-                            // Jika produk sudah ada dalam keranjang, tambahkan jumlahnya
-                            updatedProducts[existingProductIndex].quantity += 1;
-                        } else {
-                            // Jika produk belum ada dalam keranjang, tambahkan produk baru
-                            selectedProduct.quantity = 1;
-                            updatedProducts.push(selectedProduct);
-                        }
-                        userCartRef.update({ products: updatedProducts })
-                            .then(() => {
-                                console.log("Product added to cart successfully.");
-                                showSuccessMessage(selectedProduct.name);
-                            })
-                            .catch((error) => {
-                                console.error("Error adding product to cart:", error);
-                            });
+        userCartRef.get().then((doc) => {
+            if (doc.exists) {
+                // Jika keranjang pengguna sudah ada, tambahkan produk ke keranjang
+                const cartData = doc.data();
+                const updatedProducts = [...cartData.products];
+                const selectedProduct = findProductById(productId); // Menggunakan fungsi findProductById untuk mendapatkan produk berdasarkan ID
+                if (selectedProduct) {
+                    const existingProductIndex = updatedProducts.findIndex(product => product.id === productId);
+                    if (existingProductIndex !== -1) {
+                        // Jika produk sudah ada dalam keranjang, tambahkan jumlahnya
+                        updatedProducts[existingProductIndex].quantity += 1;
                     } else {
-                        // Jika keranjang pengguna belum ada, buat keranjang baru
+                        // Jika produk belum ada dalam keranjang, tambahkan produk baru
                         selectedProduct.quantity = 1;
-                        userCartRef.set({ products: [selectedProduct] })
-                            .then(() => {
-                                console.log("Product added to cart successfully.");
-                                showSuccessMessage(selectedProduct.name);
-                            })
-                            .catch((error) => {
-                                console.error("Error adding product to cart:", error);
-                            });
+                        updatedProducts.push(selectedProduct);
                     }
-                }).catch((error) => {
-                    console.error("Error getting document:", error);
-                });
+                    userCartRef.update({ products: updatedProducts })
+                        .then(() => {
+                            console.log("Product added to cart successfully.");
+                            showSuccessMessage(selectedProduct.name);
+                        })
+                        .catch((error) => {
+                            console.error("Error adding product to cart:", error);
+                        });
+                } else {
+                    console.error("Product not found.");
+                }
             } else {
-                console.error("No user is signed in.");
+                // Jika keranjang pengguna belum ada, buat keranjang baru
+                const selectedProduct = findProductById(productId); // Menggunakan fungsi findProductById untuk mendapatkan produk berdasarkan ID
+                if (selectedProduct) {
+                    selectedProduct.quantity = 1;
+                    userCartRef.set({ products: [selectedProduct] })
+                        .then(() => {
+                            console.log("Product added to cart successfully.");
+                            showSuccessMessage(selectedProduct.name);
+                        })
+                        .catch((error) => {
+                            console.error("Error adding product to cart:", error);
+                        });
+                } else {
+                    console.error("Product not found.");
+                }
             }
-        }
+        }).catch((error) => {
+            console.error("Error getting document:", error);
+        });
+    } else {
+        console.error("No user is signed in.");
+    }
+}
 
-        function showSuccessMessage(productName) {
-            const successMessage = document.getElementById("success-message");
-            successMessage.textContent = `Product ${productName} added to cart successfully!`;
-            successMessage.style.display = "block";
-            setTimeout(() => {
-                successMessage.style.display = "none";
-            }, 1000); // Hide the success message after 3 seconds
+// Fungsi untuk mencari produk berdasarkan ID
+function findProductById(productId) {
+    const categoryKeys = Object.keys(categories);
+    for (let i = 0; i < categoryKeys.length; i++) {
+        const products = categories[categoryKeys[i]];
+        const foundProduct = products.find(product => product.id === productId);
+        if (foundProduct) {
+            return foundProduct;
         }
+    }
+    return null;
+}
+
+// Fungsi untuk menampilkan pesan sukses ketika produk ditambahkan ke keranjang
+function showSuccessMessage(productName) {
+    const successMessage = document.getElementById("success-message");
+    successMessage.textContent = `Product ${productName} added to cart successfully!`;
+    successMessage.style.display = "block";
+    setTimeout(() => {
+        successMessage.style.display = "none";
+    }, 1000); // Sembunyikan pesan sukses setelah 1 detik
+}
+
+
+
+
 
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
