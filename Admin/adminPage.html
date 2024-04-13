@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Page</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      overflow-x: auto;
+      background-color: #f0f0f0;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px;
+      background-color: #333;
+      color: #fff;
+    }
+
+    .admin-nav-wrapper {
+      text-align: center; /* Posisi tengah secara horizontal */
+      padding: 0px;
+      width: 100%; /* Lebar penuh */
+      margin-top: 50px;
+    }
+
+    .admin-nav {
+      display: flex;
+      justify-content: center; /* Posisi tengah secara horizontal */
+      max-width: 800px; /* Lebar maksimum kontainer */
+      margin: 0 auto; /* Posisi tengah horizontal */
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 10px; /* Margin kanan dan kiri untuk simetris */
+    }
+
+    .nav-button {
+      background-color: #f0f0f0;
+      color: #333;
+      border: none;
+      padding: 30px;
+      border-radius: 50%;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s ease; /* Efek transisi warna latar */
+    }
+
+    .nav-button:hover {
+      background-color: #ddd;
+    }
+
+    .nav-button i {
+      font-size: 24px;
+    }
+
+    .nav-text {
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    
+     .navigation {
+    position: fixed;
+    bottom: 5px; /* Ubah jarak dari bawah sesuai kebutuhan */
+    left: 50%; /* Posisikan di tengah */
+    transform: translateX(-50%); /* Geser sejauh setengah lebar elemen */
+    width: 300px; /* Lebarkan sesuai konten */
+    height: 45px;
+    background-color: #000000df;
+    display: flex;
+    justify-content: space-between;
+    padding: 0px;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    border-radius: 9px;
+}
+
+.navigation button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    padding: 0 35px; /* Tambahkan padding ke kiri dan kanan */
+    color: white; /* Ubah warna teks menjadi putih */
+}
+
+.navigation a { 
+color: white; 
+text-decoration: none; 
+display: flex; 
+align-items: center; 
+justify-content: center; 
+padding: 0 35px; 
+cursor: pointer; 
+} 
+.navigation a i { 
+font-size: 16px; 
+}
+    
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Admin Page</h1>
+  </header>
+
+  <div class="admin-nav-wrapper">
+    <div class="admin-nav">
+      <div class="nav-item">
+        <a href="https://toko-privat-github-io.vercel.app/Admin/Data.html" class="nav-button" onclick="animateButton(this)">
+         <i class="fas fa-chart-line"></i>
+        </a>
+        <div class="nav-text">Data Analisis</div>
+      </div> 
+
+      <div class="nav-item">
+        <a href="https://toko-privat-github-io.vercel.app/Admin/admin.html" class="nav-button" onclick="animateButton(this)">
+          <i class="fas fa-code"></i>
+        </a>
+        <div class="nav-text">Buat Token</div>
+      </div>
+      <div class="nav-item">
+        <a href="https://toko-privat-github-io.vercel.app/Akun/riwayatpublik.html" class="nav-button" onclick="animateButton(this)">
+          <i class="fas fa-history"></i>
+        </a>
+        <div class="nav-text">Riwayat Hadiah</div>
+      </div>
+    </div>
+  </div>
+
+
+<!-- Tombol navigasi -->
+<div class="navigation"> <a href="javascript:history.back()" id="login-button">
+    <i class="fas fa-sign-in-alt"></i></a> <a href="https://toko-privat-github-io.vercel.app" id="gift-button">
+        <i class="fas fa-home"></i></a> <a href="https://toko-privat-github-io.vercel.app/Akun/profil.html" id="profile-button">
+            <i class="fas fa-user"></i></a> </div>
+
+
+  <script>
+    function animateButton(button) {
+      button.classList.add('clicked'); // Menambah kelas clicked saat tombol diklik
+      setTimeout(() => {
+        button.classList.remove('clicked'); // Menghapus kelas clicked setelah 300ms
+      }, 300);
+    }
+  </script>
+</body>
+</html>
