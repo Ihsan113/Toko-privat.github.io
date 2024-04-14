@@ -428,7 +428,7 @@ function sendRewardInfoToFirestore(uid, rewardName) {
     const userExchangeHistoryRef = firebase.firestore().collection('riwayat_admin').doc(uid);
     userExchangeHistoryRef.collection('tukar').add({
         giftName: rewardName,
-        giftCost: 15, // Menggunakan 15 sebagai biaya hadiah
+        giftCost: 25, // Menggunakan 25 sebagai biaya hadiah
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
         console.log("Reward information sent to user's admin history collection.");
