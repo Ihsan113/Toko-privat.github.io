@@ -216,7 +216,7 @@ font-size: 16px;
     <div id="coinDisplay" class="coin-display">
         <p class="coin-count">Koin Anda: <span id="coinCount">0</span><i class="fas fa-coins"></i></p>
     </div>
-    <h3>Memerlukan 15 koin</h3>
+    <h3>Memerlukan 25 koin</h3>
     <div id="userInfo" class="user-info"></div>
     <hr>
     <button onclick="spinWheel()">Main</button>
@@ -261,7 +261,7 @@ font-size: 16px;
     
    // Function to show reward information
 function showRewardInfo() {
-    alert("Info hadiah:\n1. Rp.1000\n2. Free Fire 70💎\n3. Free Fire 12💎\n4. Nutrisari\n5. Permen\n6. Free Fire 5💎\n7. Mi gelas\n\nSemoga beruntung!");
+    alert("Info hadiah:\n1. Free Fire 100💎 \n2. Free Fire 70💎\n3. Free Fire 12💎\n4. Free Fire 140💎\n5. Free Fire 50💎\n6. Free Fire 5💎\n7. Poin Bonus 10\n\nSemoga beruntung!");
 }
 
 
@@ -318,7 +318,7 @@ firebase.auth().onAuthStateChanged(user => {
 
 function spinWheel() {
     const currentCoins = parseInt(coinCountSpan.textContent);
-    if (currentCoins >= 15) {
+    if (currentCoins >= 25) {
         const confirmPlay = confirm("Anda yakin ingin memutar roda hadiah?");
         if (confirmPlay) {
             // Disable the button to prevent spamming
@@ -326,14 +326,14 @@ function spinWheel() {
 
             const uid = firebase.auth().currentUser.uid;
 
-            // Deduct 15 coins from user's balance in Firestore
+            // Deduct 25 coins from user's balance in Firestore
             const userRef = firebase.firestore().collection('profiles').doc(uid);
             userRef.get().then(doc => {
                 if (doc.exists) {
                     const userData = doc.data();
                     const currentCoins = userData.points || 0;
-                    if (currentCoins >= 15) {
-                        const remainingCoins = currentCoins - 15;
+                    if (currentCoins >= 25) {
+                        const remainingCoins = currentCoins - 25;
                         userRef.update({ points: remainingCoins }).then(() => {
                             // Update coins display after deducting coins from Firestore
                             updateCoinsDisplay(remainingCoins);
@@ -354,16 +354,17 @@ function spinWheel() {
 
                                 // Simulate random reward (placeholder)
                                 const rewards = [
-                                    { name: 'Rp.1000', probability: 0.65 },
-                                    { name: 'Frefire 70💎', probability: 0.05 },
-                                    { name: 'Frefire 12💎', probability: 0.1 },
-                                    { name: 'Nutrisari', probability: 0.60 },
-                                    { name: 'Permen', probability: 0.75 },
-                                    { name: 'Frefire 5💎', probability: 0.15 },
-                                    { name: 'Mi gelas', probability: 0.30 }
-                                ];
+    { name: 'Frefire 140💎', probability: 0.005 },
+    { name: 'Frefire 70💎', probability: 0.02 },
+    { name: 'Frefire 12💎', probability: 0.04 },
+    { name: 'Frefire 50💎', probability: 0.03 },
+    { name: 'Frefire 100💎', probability: 0.01 },
+    { name: 'Frefire 5💎', probability: 0.04 },
+    { name: 'Poin 10', probability: 0.9 }
+];
 
-                                let totalProbability = 0;
+let totalProbability = 0;
+
                                 for (const reward of rewards) {
                                     totalProbability += reward.probability;
                                 }
