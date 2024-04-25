@@ -363,50 +363,58 @@ font-size: 20px;
                         });
 
                         const btnPay = document.getElementById('btn-pay');
-                        btnPay.addEventListener('click', () => {
-                            const isConfirmed = confirm('Apakah Anda yakin ingin melakukan pembayaran?');
-                            if (isConfirmed) {
-                                document.getElementById('loading').style.display = 'block';
-                                if (userCartData.products.length === 0) {
-                                    document.getElementById('loading').style.display = 'none';
-                                    alert('Keranjang belanja kosong. Tambahkan produk terlebih dahulu.');
-                                } else if (userSaldo < totalHarga) {
-                                    document.getElementById('loading').style.display = 'none';
-                                    alert('Saldo tidak mencukupi untuk melakukan pembayaran.');
-                                } else {
-                                    userCartRef.update({
-                                        products: []
-                                    }).then(() => {
-                                        userProfileRef.update({
-                                            balance: userSaldo - totalHarga
-                                        }).then(() => {
-                                            const newTotalPoints = userPoints + totalPoin;
-                                            userProfileRef.update({
-                                                points: newTotalPoints
-                                            }).then(() => {
-                                                // Panggil fungsi untuk mengirim informasi produk ke koleksi "Alality"
-                                                sendProductInfoToAlality(collectedProducts)
-                                                    .then(() => {
-                                                        document.getElementById('loading').style.display = 'none';
-                                                        alert('Pembayaran berhasil!');
-                                                        // Arahkan pengguna ke halaman selanjutnya
-                                                        window.location.href = "selamat.html";
-                                                    })
-                                                    .catch(error => {
-                                                        console.error("Error sending product information to Alality:", error);
-                                                    });
-                                            }).catch((error) => {
-                                                console.error("Error updating user points:", error);
-                                            });
-                                        }).catch((error) => {
-                                            console.error("Error updating user balance:", error);
-                                        });
-                                    }).catch((error) => {
-                                        console.error("Error removing products from cart:", error);
-                                    });
-                                }
-                            }
-                        });
+btnPay.addEventListener('click', () => {
+    const isConfirmed = confirm('Apakah Anda yakin ingin melakukan pembayaran?');
+    if (isConfirmed) {
+        btnPay.disabled = true; // Menonaktifkan tombol saat pembayaran sedang diproses
+        document.getElementById('loading').style.display = 'block';
+        if (userCartData.products.length === 0) {
+            document.getElementById('loading').style.display = 'none';
+            alert('Keranjang belanja kosong. Tambahkan produk terlebih dahulu.');
+            btnPay.disabled = false; // Mengaktifkan kembali tombol jika terjadi kesalahan
+        } else if (userSaldo < totalHarga) {
+            document.getElementById('loading').style.display = 'none';
+            alert('Saldo tidak mencukupi untuk melakukan pembayaran.');
+            btnPay.disabled = false; // Mengaktifkan kembali tombol jika terjadi kesalahan
+        } else {
+            userCartRef.update({
+                products: []
+            }).then(() => {
+                userProfileRef.update({
+                    balance: userSaldo - totalHarga
+                }).then(() => {
+                    const newTotalPoints = userPoints + totalPoin;
+                    userProfileRef.update({
+                        points: newTotalPoints
+                    }).then(() => {
+                        // Panggil fungsi untuk mengirim informasi produk ke koleksi "Alality"
+                        sendProductInfoToAlality(collectedProducts)
+                            .then(() => {
+                                document.getElementById('loading').style.display = 'none';
+                                alert('Pembayaran berhasil!');
+                                // Arahkan pengguna ke halaman selanjutnya
+                                window.location.href = "selamat.html";
+                            })
+                            .catch(error => {
+                                console.error("Error sending product information to Alality:", error);
+                                btnPay.disabled = false; // Mengaktifkan kembali tombol jika terjadi kesalahan
+                            });
+                    }).catch((error) => {
+                        console.error("Error updating user points:", error);
+                        btnPay.disabled = false; // Mengaktifkan kembali tombol jika terjadi kesalahan
+                    });
+                }).catch((error) => {
+                    console.error("Error updating user balance:", error);
+                    btnPay.disabled = false; // Mengaktifkan kembali tombol jika terjadi kesalahan
+                });
+            }).catch((error) => {
+                console.error("Error removing products from cart:", error);
+                btnPay.disabled = false; // Mengaktifkan kembali tombol jika terjadi kesalahan
+            });
+        }
+    }
+});
+
                     } else {
                         console.log("No such document!");
                     }
