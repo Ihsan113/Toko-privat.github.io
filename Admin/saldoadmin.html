@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halaman Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <style>
+        /* General styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Table styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 12px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+
+        td {
+            color: #666;
+        }
+
+        /* Button styling */
+        .approve-button, .reject-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin-right: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .approve-button:hover {
+            background-color: #45a049;
+        }
+
+        .reject-button {
+            background-color: #f44336;
+        }
+
+        .reject-button:hover {
+            background-color: #da190b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Data Top Up Saldo</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama Pengguna</th>
+                    <th>UID</th>
+                    <th>Jumlah Saldo</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="top-up-table-body">
+                <!-- Data top up saldo akan ditampilkan di sini -->
+            </tbody>
+        </table>
+
+        <h2>Riwayat Top Up</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama Pengguna</th>
+                    <th>UID</th>
+                    <th>Jumlah Saldo</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="top-up-history-body">
+                <!-- Riwayat top up saldo akan ditampilkan di sini -->
+            </tbody>
+        </table>
+    </div>
+
+
+
+
+    <!-- Script JavaScript untuk menampilkan data top up saldo dan mengubah status -->
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
+    <script>
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+            authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+            projectId: "toko-online-ku-8be4a",
+            storageBucket: "toko-online-ku-8be4a.appspot.com",
+            messagingSenderId: "714682286460",
+            appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+            measurementId: "G-7RS1N1FT8Z"
+        };
+
+        // Inisialisasi Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(app);
+        const auth = firebase.auth();
+
+        // Fungsi untuk menampilkan data top up saldo
+        function displayTopUpData(snapshot, tableBodyId, isHistory) {
+            const tableBody = document.getElementById(tableBodyId);
+            tableBody.innerHTML = '';
+            snapshot.forEach(doc => {
+                const topUpData = doc.data();
+                const { displayName, uid, amount, status } = topUpData;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${displayName}</td>
+                    <td>${uid}</td>
+                    <td>${amount}</td>
+                    <td>${status}</td>
+                    ${isHistory ? '' : `<td>
+                        <button class="approve-button" onclick="approveTopUp('${doc.id}', '${uid}', ${amount})">Approve</button>
+                        <br>
+                        <br>
+                        <button class="reject-button" onclick="rejectTopUp('${doc.id}')">Reject</button>
+                    </td>`}
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Cek apakah pengguna telah login sebelum mengakses data Firestore
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // Menampilkan data top up saldo dengan status 'pending'
+                db.collection('saldoPanel').where('status', '==', 'pending').onSnapshot(snapshot => {
+                    displayTopUpData(snapshot, 'top-up-table-body');
+                });
+
+                // Menampilkan riwayat top up saldo
+                db.collection('saldoPanel').where('status', 'in', ['success', 'rejected']).onSnapshot(snapshot => {
+                    displayTopUpData(snapshot, 'top-up-history-body', true);
+                });
+            } else {
+                console.error("No user is signed in.");
+                // Handle authentication or redirect to login page
+            }
+        });
+
+        // Mengubah status top up saldo menjadi berhasil dan mengirim saldo ke pengguna
+        function approveTopUp(docId, userId, amount) {
+            const topUpDocRef = db.collection('saldoPanel').doc(docId);
+            const userDocRef = db.collection('profiles').doc(userId);
+
+            // Update status top up menjadi 'success'
+            topUpDocRef.update({
+                status: 'success'
+            }).then(() => {
+                console.log("Status top up saldo berhasil diubah.");
+
+                // Menambahkan saldo ke akun pengguna
+                userDocRef.get().then(doc => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        const currentBalance = userData.balance || 0;
+                        const newBalance = currentBalance + amount;
+
+                        // Update saldo pengguna
+                        userDocRef.update({
+                            balance: newBalance
+                        }).then(() => {
+                            console.log("Saldo berhasil dikirim ke pengguna.");
+                        }).catch(error => {
+                            console.error("Error updating user balance:", error);
+                        });
+                    } else {
+                        console.error("No such document!");
+                    }
+                }).catch(error => {
+                    console.error("Error getting user document:", error);
+                });
+            }).catch(error => {
+                console.error("Error updating top up saldo status:", error);
+            });
+        }
+
+        // Menolak top up saldo dan mengubah status menjadi 'rejected'
+        function rejectTopUp(docId) {
+            const topUpDocRef = db.collection('saldoPanel').doc(docId);
+
+            // Update status top up menjadi 'rejected'
+            topUpDocRef.update({
+                status: 'rejected'
+            }).then(() => {
+                console.log("Status top up saldo ditolak.");
+            }).catch(error => {
+                console.error("Error updating top up saldo status:", error);
+            });
+        }
+    </script>
+</body>
+</html>

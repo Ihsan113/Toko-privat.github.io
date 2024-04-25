@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfer Poin</title>
+    <title>Transfer Koleksi</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         /* CSS yang sudah Anda sediakan sebelumnya */
@@ -31,7 +31,6 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            
         }
 
         .transfer-section {
@@ -102,8 +101,7 @@
             padding: 0px;
             box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
             z-index: 999;
-            border-radius: 9px;p
-            
+            border-radius: 9px;
         }
 
         .navigation button {
@@ -133,21 +131,21 @@
 </head>
 <body>
     
-   <!-- HTML untuk input UID dan jumlah poin untuk transfer -->
+   <!-- HTML untuk input UID dan jumlah koleksi untuk transfer -->
 
 <div class="container">
     <div class="user-info">
         <h3>Lakukan Transfer Dengan hati hati</h3>
         <p><strong>Nama:</strong> <span id="user-name">...</span></p>
         <p><strong>UID:</strong> <span id="user-uid">...</span></p>
-        <p><strong>Poin:</strong> <span id="user-points">...</span></p>
+        <p><strong>Saldo Kamu:</strong> <span id="user-balance">...</span></p>
     </div>
 
     <div class="transfer-section">
-        <h3>Transfer Poin</h3>
+        <h3>Transfer Saldo</h3>
         <input type="text" id="recipient-uid" placeholder="UID Penerima">
-        <input type="number" id="transfer-amount" placeholder="Jumlah Poin">
-        <button onclick="transferPoints()">Kirim</button>
+        <input type="number" id="transfer-amount" placeholder="Jumlah Koleksi">
+        <button onclick="transferCollection()">Kirim</button>
         <div class="loading-spinner" id="transfer-loading">
             <i class="fas fa-spinner fa-spin spinner"></i>
         </div>
@@ -157,9 +155,9 @@
     
     <div class="transfer-section">
         <hr>
-        <h3>Ambil Poin</h3>
+        <h3>Ambil saldo dari teman</h3>
         <input type="text" id="claim-token" placeholder="Token Transfer">
-        <button onclick="claimPoints()">Ambil</button>
+        <button onclick="claimCollection()">Ambil</button>
         <div class="loading-spinner" id="claim-loading">
             <i class="fas fa-spinner fa-spin spinner"></i>
         </div>
@@ -176,7 +174,7 @@
      <a href="profil.html" id="profile-button">
             <i class="fas fa-user"></i></a> </div>
 
-<!-- Script JavaScript untuk transfer poin dengan Firebase -->
+<!-- Script JavaScript untuk transfer koleksi dengan Firebase -->
 
 <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
@@ -208,8 +206,8 @@
             userProfileRef.get().then(doc => {
                 if (doc.exists) {
                     const userData = doc.data();
-                    const userPoints = userData.points || 0;
-                    document.getElementById('user-points').innerText = userPoints;
+                    const userBalance = userData.balance || 0;
+                    document.getElementById('user-balance').innerText = userBalance;
                 } else {
                     console.log("No such document!");
                 }
@@ -230,7 +228,7 @@
         }
     }
 
-    function transferPoints() {
+    function transferCollection() {
         toggleLoadingSpinner('transfer-loading', true);
 
         const recipientUid = document.getElementById('recipient-uid').value;
@@ -239,18 +237,18 @@
         if (recipientUid && transferAmount) {
             const currentUser = firebase.auth().currentUser;
             const currentUserUid = currentUser.uid;
-            const currentUserPointsRef = firebase.firestore().collection('profiles').doc(currentUserUid);
+            const currentUserBalanceRef = firebase.firestore().collection('profiles').doc(currentUserUid);
 
-            currentUserPointsRef.get().then(doc => {
+            currentUserBalanceRef.get().then(doc => {
                 if (doc.exists) {
                     const userData = doc.data();
-                    const currentUserPoints = userData.points || 0;
+                    const currentUserBalance = userData.balance || 0;
 
-                    if (currentUserPoints >= transferAmount) {
-                        currentUserPointsRef.update({
-                            points: firebase.firestore.FieldValue.increment(-transferAmount)
+                    if (currentUserBalance >= transferAmount) {
+                        currentUserBalanceRef.update({
+                            balance: firebase.firestore.FieldValue.increment(-transferAmount)
                         }).then(() => {
-                            console.log("Poin berhasil dikurangi dari pengguna saat ini.");
+                            console.log("Saldo berhasil dikurangi dari pengguna saat ini.");
 
                             const transferCollectionRef = firebase.firestore().collection('transfer');
                             const token = Math.random().toString(36).substr(2, 9); // Generate random token
@@ -262,7 +260,7 @@
                                 token: token
                             }).then(() => {
                                 console.log("Data transfer berhasil ditambahkan.");
-                                alert("Poin berhasil ditransfer!");
+                                alert("Saldo berhasil ditransfer!");
                                 document.getElementById('transfer-token').innerText = token;
                                 document.getElementById('transfer-token-message').style.display = 'block';
                                 document.getElementById('copy-token-button').style.display = 'block';
@@ -272,11 +270,11 @@
                                 toggleLoadingSpinner('transfer-loading', false);
                             });
                         }).catch(error => {
-                            console.error("Error updating current user's points:", error);
+                            console.error("Error updating current user's balance:", error);
                             toggleLoadingSpinner('transfer-loading', false);
                         });
                     } else {
-                        alert("Pengguna saat ini tidak memiliki cukup poin untuk mentransfer.");
+                        alert("Pengguna saat ini tidak memiliki cukup saldo untuk mentransfer.");
                         toggleLoadingSpinner('transfer-loading', false);
                     }
                 } else {
@@ -284,11 +282,11 @@
                     toggleLoadingSpinner('transfer-loading', false);
                 }
             }).catch(error => {
-                console.error("Error getting current user's points:", error);
+                console.error("Error getting current user's balance:", error);
                 toggleLoadingSpinner('transfer-loading', false);
             });
         } else {
-            alert("Harap masukkan UID penerima dan jumlah poin yang ingin ditransfer.");
+            alert("Harap masukkan UID penerima dan jumlah saldo yang ingin ditransfer.");
             toggleLoadingSpinner('transfer-loading', false);
         }
     }
@@ -307,7 +305,7 @@
         alert("Token berhasil disalin: " + token);
     }
 
-    function claimPoints() {
+    function claimCollection() {
         toggleLoadingSpinner('claim-loading', true);
 
         const claimToken = document.getElementById('claim-token').value;
@@ -322,25 +320,25 @@
                         const { senderUid, recipientUid, amount } = transferData;
 
                         if (recipientUid === firebase.auth().currentUser.uid) {
-                            const recipientPointsRef = firebase.firestore().collection('profiles').doc(recipientUid);
+                            const recipientBalanceRef = firebase.firestore().collection('profiles').doc(recipientUid);
 
-                            recipientPointsRef.update({
-                                points: firebase.firestore.FieldValue.increment(amount)
+                            recipientBalanceRef.update({
+                                balance: firebase.firestore.FieldValue.increment(amount)
                             }).then(() => {
-                                console.log("Poin berhasil ditambahkan ke penerima.");
+                                console.log("Saldo berhasil ditambahkan ke penerima.");
 
-                                // Menghapus data transfer setelah poin diambil
+                                // Menghapus data transfer setelah saldo diambil
                                 doc.ref.delete().then(() => {
-                                    console.log("Data transfer berhasil dihapus setelah poin diambil.");
-                                    alert("Poin berhasil diambil!");
-                                    document.getElementById('claim-token').value = ''; // Mengosongkan input token setelah poin diambil
+                                    console.log("Data transfer berhasil dihapus setelah saldo diambil.");
+                                    alert("Saldo berhasil diambil!");
+                                    document.getElementById('claim-token').value = ''; // Mengosongkan input token setelah saldo diambil
                                     toggleLoadingSpinner('claim-loading', false);
                                 }).catch(error => {
                                     console.error("Error deleting transfer data:", error);
                                     toggleLoadingSpinner('claim-loading', false);
                                 });
                             }).catch(error => {
-                                console.error("Error updating recipient's points:", error);
+                                console.error("Error updating recipient's balance:", error);
                                 toggleLoadingSpinner('claim-loading', false);
                             });
                         } else {
@@ -357,11 +355,10 @@
                 toggleLoadingSpinner('claim-loading', false);
             });
         } else {
-            alert("Harap masukkan token transfer untuk mengambil poin.");
+            alert("Harap masukkan token transfer untuk mengambil saldo.");
             toggleLoadingSpinner('claim-loading', false);
         }
     }
 </script>
 </body>
 </html>
- 

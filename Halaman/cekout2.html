@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Produk</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            
+        }
+
+
+
+
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+
+        .product-info img {
+            width: 100px;
+            height: 100px;
+            margin-right: 20px;
+            border-radius: 5px;
+        }
+
+        .product-info h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .product-info p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .totals {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        #loading {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+         .navigation {
+    position: fixed;
+    bottom: 5px; /* Ubah jarak dari bawah sesuai kebutuhan */
+    left: 50%; /* Posisikan di tengah */
+    transform: translateX(-50%); /* Geser sejauh setengah lebar elemen */
+    width: 300px; /* Lebarkan sesuai konten */
+    height: 45px;
+    background-color: #000000df;
+    display: flex;
+    justify-content: space-between;
+    padding: 0px;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    border-radius: 9px;
+}
+
+.navigation button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    padding: 0 35px; /* Tambahkan padding ke kiri dan kanan */
+    color: white; /* Ubah warna teks menjadi putih */
+}
+
+.navigation a { 
+color: white; 
+text-decoration: none; 
+display: flex; 
+align-items: center; 
+justify-content: center; 
+padding: 0 35px; 
+cursor: pointer; 
+} 
+.navigation a i { 
+font-size: 20px; 
+}
+    
+
+.loading-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%); /* Memindahkan elemen ke tengah */
+    background-color: rgba(0, 0, 0, 0.5); /* Warna hitam dengan opasitas 50% */
+    z-index: 9999;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+}
+
+.atom {
+    position: relative;
+    width: 40px;
+    height: 40px;
+}
+
+.dot {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    animation: orbit 2s linear infinite, spin 2s linear infinite, pulse 2s ease-in-out infinite;
+}
+
+.dot:nth-child(1) {
+    top: calc(50% - 40px);
+    left: calc(50% - 10px);
+    transform-origin: center center;
+    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+}
+
+.dot:nth-child(2) {
+    top: calc(50% + 20px);
+    left: calc(50% - 10px);
+    transform-origin: center center;
+    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+}
+
+.dot:nth-child(3) {
+    top: calc(50% - 10px);
+    left: calc(50% - 40px);
+    transform-origin: center center;
+    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+}
+
+.dot:nth-child(4) {
+    top: calc(50% - 10px);
+    left: calc(50% + 20px);
+    transform-origin: center center;
+    background: radial-gradient(circle, rgba(192, 192, 192, 1) 0%, rgba(211, 211, 211, 1) 50%, rgba(192, 192, 192, 1) 100%);
+    box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
+}
+
+@keyframes orbit {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+    </style>
+</head>
+<!-- Tombol navigasi -->
+<div class="navigation"> <a href="javascript:history.back()" id="login-button">
+    <i class="fas fa-sign-in-alt"></i></a> <a href="https://toko-privat-github-io.vercel.app" id="gift-button">
+        <i class="fas fa-home"></i></a> <a href="https://toko-privat-github-io.vercel.app/Akun/profil.html" id="profile-button">
+            <i class="fas fa-user"></i></a> </div>
+            
+<div id="loading-overlay" class="loading-overlay">
+    <div class="atom"> <div class="dot"></div> <div class="dot"></div> <div class="dot"></div> <div class="dot"></div>
+    </div>
+    </div>
+<body>    
+    <br>
+<div style="width: 300px;
+            margin: auto;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;">
+
+  <a href="cekout.html" style="background-color: #3498db; 
+                                    border: none;
+                                    color: white;
+                                    padding: 15px 32px;
+                                    text-align: center;
+                                    text-decoration: none;
+                                    display: inline-block;
+                                    font-size: 12px;
+                                    border-radius: 10px;
+                                    transition-duration: 0.4s;
+                                    cursor: pointer;">Bayar dengan ke kasir</a>
+
+  <p style="text-align: center; 
+            font-size: 12px;
+            margin-top: 10px;">Klik tombol di atas untuk melakukan pembayaran melalui kasir</p>
+
+</div>
+
+
+<div class="container">
+    <!-- Informasi produk -->
+    <div id="product-info-container"></div>
+
+    <!-- Total harga, total poin, dan total produk -->
+    <div id="totals-container" class="totals">
+        <p id="total-harga">Total Harga: $0.00</p>
+        <p id="total-poin">Total Poin: 0</p>
+        <p id="total-produk">Total Produk: 0</p>
+    </div>
+
+    <!-- Saldo pengguna -->
+    <div id="saldo-container" class="totals">
+        <p id="user-saldo">Saldo Pengguna: $0.00</p>
+        <p id="user-points">Poin Pengguna: 0</p>
+    </div>
+
+    <!-- Tombol bayar -->
+    <button id="btn-pay" class="btn">Bayar</button>
+
+    <!-- Animasi loading -->
+    <div id="loading">
+        <div class="loading-spinner"></div>
+        <p>Loading...</p>
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
+
+<script>
+    // Konfigurasi Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+        authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+        projectId: "toko-online-ku-8be4a",
+        storageBucket: "toko-online-ku-8be4a.appspot.com",
+        messagingSenderId: "714682286460",
+        appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+        measurementId: "G-7RS1N1FT8Z"
+    };
+
+    // Inisialisasi Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Fungsi untuk mendapatkan data produk berdasarkan pengguna yang sudah terotentikasi
+    function displayProductInfo() {
+        let userSaldo;
+        let userPoints;
+        
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                const userId = user.uid;
+                const userCartRef = firebase.firestore().collection('carts').doc(userId);
+
+                userCartRef.get().then((doc) => {
+                    if (doc.exists) {
+                        const productInfoContainer = document.getElementById("product-info-container");
+                        const totalsContainer = document.getElementById("totals-container");
+                        const saldoContainer = document.getElementById("saldo-container");
+                        const userCartData = doc.data();
+                        let totalHarga = 0;
+                        let totalPoin = 0;
+                        let totalProduk = 0;
+                        let collectedProducts = [];
+
+                        userCartData.products.forEach((product) => {
+                            const productInfo = document.createElement("div");
+                            productInfo.classList.add("product-info");
+                            productInfo.innerHTML = `
+                                <img src="${product.image}" alt="${product.name}">
+                                <div>
+                                    <h3>${product.name}</h3>
+                                    <p>Price: $${product.price.toFixed(2)}</p>
+                                    <p>Bonus Points: ${product.bonusPoints}</p>
+                                    <p>Quantity: ${product.quantity}</p>
+                                </div>
+                            `;
+                            productInfoContainer.appendChild(productInfo);
+
+                            totalHarga += product.price * product.quantity;
+                            totalPoin += product.bonusPoints * product.quantity;
+                            totalProduk += product.quantity;
+
+                            // Kumpulkan informasi produk
+                            collectedProducts.push({
+                                name: product.name,
+                                price: product.price,
+                                bonusPoints: product.bonusPoints,
+                                quantity: product.quantity,
+                                buyerName: user.displayName || "Anonymous",
+                                date: new Date().toISOString()
+                            });
+                        });
+
+                        document.getElementById('total-harga').innerText = `Total Harga: $${totalHarga.toFixed(2)}`;
+                        document.getElementById('total-poin').innerText = `Total Poin: ${totalPoin}`;
+                        document.getElementById('total-produk').innerText = `Total Produk: ${totalProduk}`;
+
+                        const userProfileRef = firebase.firestore().collection('profiles').doc(userId);
+                        userProfileRef.get().then(doc => {
+                            if (doc.exists) {
+                                const userData = doc.data();
+                                userSaldo = userData.balance || 0;
+                                userPoints = userData.points || 0;
+                                document.getElementById('user-saldo').innerText = `Saldo Pengguna: $${userSaldo.toFixed(2)}`;
+                                document.getElementById('user-points').innerText = `Poin Pengguna: ${userPoints}`;
+                            } else {
+                                console.log("No such document!");
+                            }
+                        }).catch(error => {
+                            console.error("Error getting user profile:", error);
+                        });
+
+                        const btnPay = document.getElementById('btn-pay');
+                        btnPay.addEventListener('click', () => {
+                            const isConfirmed = confirm('Apakah Anda yakin ingin melakukan pembayaran?');
+                            if (isConfirmed) {
+                                document.getElementById('loading').style.display = 'block';
+                                if (userCartData.products.length === 0) {
+                                    document.getElementById('loading').style.display = 'none';
+                                    alert('Keranjang belanja kosong. Tambahkan produk terlebih dahulu.');
+                                } else if (userSaldo < totalHarga) {
+                                    document.getElementById('loading').style.display = 'none';
+                                    alert('Saldo tidak mencukupi untuk melakukan pembayaran.');
+                                } else {
+                                    userCartRef.update({
+                                        products: []
+                                    }).then(() => {
+                                        userProfileRef.update({
+                                            balance: userSaldo - totalHarga
+                                        }).then(() => {
+                                            const newTotalPoints = userPoints + totalPoin;
+                                            userProfileRef.update({
+                                                points: newTotalPoints
+                                            }).then(() => {
+                                                // Panggil fungsi untuk mengirim informasi produk ke koleksi "Alality"
+                                                sendProductInfoToAlality(collectedProducts)
+                                                    .then(() => {
+                                                        document.getElementById('loading').style.display = 'none';
+                                                        alert('Pembayaran berhasil!');
+                                                        // Arahkan pengguna ke halaman selanjutnya
+                                                        window.location.href = "selamat.html";
+                                                    })
+                                                    .catch(error => {
+                                                        console.error("Error sending product information to Alality:", error);
+                                                    });
+                                            }).catch((error) => {
+                                                console.error("Error updating user points:", error);
+                                            });
+                                        }).catch((error) => {
+                                            console.error("Error updating user balance:", error);
+                                        });
+                                    }).catch((error) => {
+                                        console.error("Error removing products from cart:", error);
+                                    });
+                                }
+                            }
+                        });
+                    } else {
+                        console.log("No such document!");
+                    }
+                }).catch((error) => {
+                    console.log("Error getting cart data:", error);
+                });
+            } else {
+                console.log("No user is signed in.");
+            }
+        });
+    }
+
+    // Fungsi untuk mengirim informasi produk ke koleksi "Alality"
+    function sendProductInfoToAlality(products) {
+        const alalityRef = firebase.firestore().collection('alality');
+        const promises = [];
+
+        products.forEach(product => {
+            const promise = alalityRef.add(product);
+            promises.push(promise);
+        });
+
+        return Promise.all(promises)
+            .then(() => {
+                console.log("All product information sent to Alality successfully.");
+            })
+            .catch((error) => {
+                console.error("Error sending product information to Alality:", error);
+                throw error;
+            });
+    }
+
+    // Panggil fungsi untuk menampilkan informasi produk
+    displayProductInfo();
+    
+     <!-- loading -->
+document.addEventListener("DOMContentLoaded", function() {
+    const loadingOverlay = document.querySelector(".loading-overlay"); // Menggunakan selector yang sesuai
+    loadingOverlay.style.display = "flex"; // Menggunakan display: flex untuk kontainer loading
+
+    setTimeout(function() {
+        loadingOverlay.style.display = "none"; // Sembunyikan overlay setelah 3 detik
+    }, 3000); // Waktu dalam milidetik (3 detik)
+});
+</script>
+
+</body>
+</html>

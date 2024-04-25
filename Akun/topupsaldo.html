@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Up Saldo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* CSS yang sudah Anda sediakan sebelumnya */
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 84%;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .user-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .user-info p {
+            margin: 5px 0;
+        }
+
+        .top-up-section {
+            text-align: center;
+        }
+
+        .top-up-section input,
+        .top-up-section button {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .top-up-section button {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .top-up-section button:hover {
+            background-color: #0056b3;
+        }
+
+        .loading-spinner {
+            display: none;
+            margin-bottom: 10px;
+        }
+
+        .loading-spinner.show {
+            display: inline-block;
+        }
+
+        .loading-spinner .spinner {
+            animation: spin 1s linear infinite;
+            font-size: 24px;
+            color: #555;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    
+   <!-- HTML untuk menampilkan informasi pengguna dan input top up saldo -->
+
+<div class="container">
+    <div class="user-info">
+        <h3>Top Up Saldo</h3>
+        <p><strong>Nama:</strong> <span id="user-name">...</span></p>
+        <p><strong>UID:</strong> <span id="user-uid">...</span></p>
+        <p><strong>Saldo Kamu: Rp</strong> <span id="user-balance">...</span></p>
+    </div>
+
+    <div class="top-up-section">
+        <h3>Input Jumlah Saldo</h3>
+        <input type="number" id="top-up-amount" placeholder="Jumlah Saldo">
+        <button onclick="topUpBalance()">Konfirmasi</button>
+        <div class="loading-spinner" id="top-up-loading">
+            <i class="fas fa-spinner fa-spin spinner"></i>
+        </div>
+        <p id="top-up-message" style="display: none;"></p>
+    </div>
+</div>
+
+<!-- Script JavaScript untuk menampilkan informasi pengguna, top up saldo, dan animasi loading -->
+
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+<script>
+    // Konfigurasi Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+        authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+        projectId: "toko-online-ku-8be4a",
+        storageBucket: "toko-online-ku-8be4a.appspot.com",
+        messagingSenderId: "714682286460",
+        appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+        measurementId: "G-7RS1N1FT8Z"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Menampilkan informasi pengguna saat halaman dimuat
+    firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+            const currentUser = firebase.auth().currentUser;
+            const userName = currentUser.displayName;
+            const userId = currentUser.uid;
+
+            document.getElementById('user-name').innerText = userName;
+            document.getElementById('user-uid').innerText = userId;
+
+            const userProfileRef = firebase.firestore().collection('profiles').doc(userId);
+            userProfileRef.get().then(doc => {
+                if (doc.exists) {
+                    const userData = doc.data();
+                    const userBalance = userData.balance || 0;
+                    document.getElementById('user-balance').innerText = userBalance;
+                } else {
+                    console.log("No such document!");
+                }
+            }).catch(error => {
+                console.error("Error getting user profile:", error);
+            });
+        } else {
+            console.error("No user is signed in.");
+        }
+    });
+
+    function toggleLoadingSpinner(elementId, show) {
+        const spinner = document.getElementById(elementId);
+        if (show) {
+            spinner.classList.add('show');
+        } else {
+            spinner.classList.remove('show');
+        }
+    }
+
+    function topUpBalance() {
+        toggleLoadingSpinner('top-up-loading', true);
+
+        const topUpAmount = parseInt(document.getElementById('top-up-amount').value);
+
+        if (topUpAmount) {
+            const currentUser = firebase.auth().currentUser;
+            const currentUserUid = currentUser.uid;
+            const currentUserDisplayName = currentUser.displayName;
+
+            const topUpData = {
+                uid: currentUserUid,
+                displayName: currentUserDisplayName,
+                amount: topUpAmount,
+                status: 'pending' // Set status ke pending
+            };
+
+            const topUpCollectionRef = firebase.firestore().collection('saldoPanel');
+            topUpCollectionRef.add(topUpData)
+                .then(() => {
+                    console.log("Data top up saldo berhasil ditambahkan.");
+
+                    // Tampilkan pesan top up berhasil dan sembunyikan animasi loading setelah beberapa detik
+                    document.getElementById('top-up-message').innerText = "Top Up Saldo berhasil! Menunggu verifikasi admin.";
+                    document.getElementById('top-up-message').style.display = 'block';
+                    toggleLoadingSpinner('top-up-loading', false);
+                    setTimeout(() => {
+                        document.getElementById('top-up-message').style.display = 'none';
+                    }, 3000);
+                })
+                .catch(error => {
+                    console.error("Error adding top up saldo data:", error);
+                    toggleLoadingSpinner('top-up-loading', false);
+                });
+        } else {
+            alert("Harap masukkan jumlah saldo yang ingin di-top up.");
+            toggleLoadingSpinner('top-up-loading', false);
+        }
+    }
+</script>
+</body>
+</html>

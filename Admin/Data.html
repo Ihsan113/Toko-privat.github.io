@@ -4,31 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
+            background-color: #f0f0f0;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         th, td {
             border: 1px solid #dddddd;
             text-align: left;
-            padding: 8px;
+            padding: 12px;
         }
 
         th {
             background-color: #f2f2f2;
+            color: #333;
         }
 
-        h2 {
-            margin-bottom: 20px;
+        td {
+            color: #666;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #total-price {
+            font-weight: bold;
+        }
+
+        /* Style for the chart container */
+        #chart-container {
+            margin-top: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
     </style>
 </head>
@@ -52,8 +98,16 @@
     </table>
     <div>Total Price: <span id="total-price">$0.00</span></div>
 
+    <!-- Chart container -->
+    <div id="chart-container">
+        <canvas id="myChart"></canvas>
+        <canvas id="myPieChart"></canvas> <!-- Added pie chart canvas -->
+        <canvas id="incomeChart"></canvas> <!-- Added income bar chart canvas -->
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Initialize Firebase
         const firebaseConfig = {
@@ -75,20 +129,23 @@
         // Fetch product information from Firestore
         db.collection("alality").get().then((querySnapshot) => {
             let totalPrice = 0;
+            let customers = {}; // Object to store total prices for each customer
+
             querySnapshot.forEach((doc) => {
                 const productData = doc.data();
                 const productName = productData.name;
-                const price = productData.price.toFixed(2);
+                const price = parseFloat(productData.price);
                 const bonusPoints = productData.bonusPoints;
                 const quantity = productData.quantity;
                 const buyerName = productData.buyerName;
                 const date = productData.date; // Get purchase date
+                const category = productData.category || "Uncategorized"; // Default category
 
                 // Create a new row for each product and append it to the table
                 const newRow = document.createElement("tr");
                 newRow.innerHTML = `
                     <td>${productName}</td>
-                    <td>$${price}</td>
+                    <td>$${price.toFixed(2)}</td>
                     <td>${bonusPoints}</td>
                     <td>${quantity}</td>
                     <td>${buyerName}</td>
@@ -97,12 +154,24 @@
                 `;
                 productTable.appendChild(newRow);
 
-                // Calculate total price
-                totalPrice += parseFloat(price);
+                // Calculate total price taking quantity into account
+                totalPrice += price * quantity;
+
+                // Update total price for the customer
+                if (customers[buyerName]) {
+                    customers[buyerName].totalPrice += price * quantity;
+                } else {
+                    customers[buyerName] = {
+                        totalPrice: price * quantity
+                    };
+                }
             });
 
             // Update total price display
             document.getElementById("total-price").textContent = "$" + totalPrice.toFixed(2);
+
+            // Update charts
+            updateCharts(customers);
         }).catch((error) => {
             console.error("Error getting product information:", error);
         });
@@ -118,6 +187,91 @@
                     console.error("Error deleting product:", error);
                 });
             }
+        }
+
+        // Function to update charts
+        function updateCharts(customers) {
+            const chartLabels = Object.keys(customers);
+            const chartData = Object.values(customers).map(customer => customer.totalPrice);
+
+            // Create pie chart
+            const ctxPie = document.getElementById('myPieChart').getContext('2d');
+            const myPieChart = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Total Price by Customer',
+                        data: chartData,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'right'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Sales by Customer'
+                        }
+                    }
+                }
+            });
+
+            // Create income bar chart
+            const ctxBar = document.getElementById('incomeChart').getContext('2d');
+            const incomeChart = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Total Income by Customer',
+                        data: chartData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Total Income by Customer'
+                        }
+                    }
+                }
+            });
         }
     </script>
 </body>

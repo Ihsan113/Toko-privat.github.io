@@ -499,12 +499,30 @@ font-size: 50px;
     margin-right: 0px;
 }
 
+#balance-info {
+  position: fixed;
+  top: 2px; /* Sesuaikan jarak dari atas sesuai kebutuhan */
+  left: -95px; /* Sesuaikan jarak dari kiri sesuai kebutuhan */
+  color: white; /* Warna teks */
+  border-radius: 5px; /* Sudut bulat */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); /* Bayangan */
+  text-shadow: 2px 2px 5px rgba(0,0,0,0.7); /* Efek bayangan pada teks */
+  z-index: 99; /* Mengatur urutan tumpukan */
+}
+
+
+
+
     
 
     </style>
 </head>
 <body>
+    
     <header>
+        
+   
+    
         <button class="history-btn" onclick="window.location.href='Akun/riwayatpublik.html'">
             <i class="fas fa-history"></i> Riwayat
         </button>
@@ -556,12 +574,7 @@ font-size: 50px;
     
    
 
-<!-- Tombol navigasi -->
-<div class="navigation"> <a href="Akun/login.html" id="Akun/login-button">
-    <i class="fas fa-sign-in-alt"></i></a> <a href="Akun/hadiah.html" id="gift-button">
-        <i class="fas fa-gift"></i></a> <a href="Akun/profil.html" id="profile-button">
-            <i class="fas fa-user"></i></a> </div>
-    
+
 </div>
 
 </div>
@@ -739,6 +752,7 @@ function addToCart(productId) {
     }
 }
 
+
 // Fungsi untuk mencari produk berdasarkan ID
 function findProductById(productId) {
     const categoryKeys = Object.keys(categories);
@@ -777,32 +791,45 @@ function showSuccessMessage(productName) {
             }
         });
 
-        function displayUserInfo(user) {
-            const userInfoDiv = document.getElementById("user-info");
+        // Update the displayUserInfo function to also fetch and display user balance
+function displayUserInfo(user) {
+    const userInfoDiv = document.getElementById("user-info");
 
-            // Ambil data pengguna dari Firestore
-            const userRef = firebase.firestore().collection("profiles").doc(user.uid);
-            userRef.get().then((doc) => {
-                if (doc.exists) {
-                    // Jika dokumen pengguna ditemukan, ambil URL foto profil
-                    const userData = doc.data();
-                    const photoURL = userData.profilePicture; // Sesuaikan dengan nama field yang digunakan di Firestore
+    // Fetch user balance from Firestore
+    const userRef = firebase.firestore().collection("profiles").doc(user.uid);
+    userRef.get().then((doc) => {
+        if (doc.exists) {
+            const userData = doc.data();
+            const photoURL = userData.profilePicture; // Get profile picture URL
+            const userBalance = userData.balance || 0; // Get user balance or default to 0
 
-                    // Tampilkan foto profil pengguna
-                    userInfoDiv.innerHTML = `
-                        <div>
-                            <img src="${photoURL}" alt="Profile Picture">
-                            <span>Selamat Datang, ${user.displayName}!</span>
-                        </div>
-                    `;
-                } else {
-                    // Jika dokumen pengguna tidak ditemukan, tampilkan pesan kesalahan atau tindakan lain sesuai kebutuhan
-                    console.log("Dokumen pengguna tidak ditemukan.");
-                }
-            }).catch((error) => {
-                console.error("Error getting user document:", error);
-            });
+            // Update user balance in the HTML
+            userInfoDiv.innerHTML = `
+                <div>
+                    <img src="${photoURL}" alt="Profile Picture">
+                    <span>Selamat Datang, ${user.displayName}!</span>
+                    <div id="balance-info">
+                       
+                        <p> <i class="fas fa-money-bill-wave"></i> Rp.<span id="user-balance">${userBalance}</span></p>
+                    </div>
+                </div>
+                
+            `;
+        } else {
+            console.log("Dokumen pengguna tidak ditemukan.");
         }
+    }).catch((error) => {
+        console.error("Error getting user document:", error);
+    });
+}
+
+// Call the displayUserInfo function when user is signed in
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        displayUserInfo(user);
+    }
+});
+
 
         let isSearching = false;
 
