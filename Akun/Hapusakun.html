@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Tools</title>
+    <!-- Tambahkan skrip Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+    <!-- Konfigurasi Firebase Anda -->
+    <script>
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+            authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+            projectId: "toko-online-ku-8be4a",
+            storageBucket: "toko-online-ku-8be4a.appspot.com",
+            messagingSenderId: "714682286460",
+            appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+            measurementId: "G-7RS1N1FT8Z"
+        };
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+    </script>
+    <style>
+        /* General styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        /* Button styling */
+        #delete-account-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin-right: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        #delete-account-btn:hover {
+            background-color: #da190b;
+        }
+
+        /* Confirm input style */
+        .confirm-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            color: #333;
+        }
+
+        /* Account info style */
+        .account-info {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Account age style */
+        .account-age {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Profil Tools</h1>
+        <p>Selamat datang di halaman profil.</p>
+        <div class="account-info">
+            <p>Nama Pengguna: <span id="user-name"></span></p>
+            <p>Email Pengguna: <span id="user-email"></span></p>
+        </div>
+        <p>Jika Anda ingin menghapus akun Anda, ketik 'konfirmasi' di bawah ini:</p>
+        <input type="text" id="confirm-input" class="confirm-input" placeholder="Ketik 'konfirmasi' di sini...">
+        <button id="delete-account-btn">Hapus Akun</button>
+        <p class="account-age">Umur Akun: <span id="account-age"></span></p>
+    </div>
+
+    <!-- Skrip untuk menangani penghapusan akun -->
+    <script>
+        const deleteAccountButton = document.getElementById('delete-account-btn');
+        const confirmInput = document.getElementById('confirm-input');
+        const userNameSpan = document.getElementById('user-name');
+        const userEmailSpan = document.getElementById('user-email');
+        const accountAgeSpan = document.getElementById('account-age');
+
+        // Fungsi untuk mendapatkan umur akun pengguna
+        function getAccountAge(user) {
+            if (user) {
+                const creationTimestamp = user.metadata.creationTime;
+                const creationDate = new Date(creationTimestamp);
+                const currentDate = new Date();
+                const diffInDays = Math.floor((currentDate - creationDate) / (1000 * 60 * 60 * 24));
+                accountAgeSpan.textContent = `${diffInDays} hari`;
+            }
+        }
+
+        // Fungsi untuk menampilkan nama pengguna dan email pengguna
+        function displayUserInfo(user) {
+            if (user) {
+                userNameSpan.textContent = user.displayName || 'N/A'; // Jika tidak ada nama pengguna, tampilkan 'N/A'
+                userEmailSpan.textContent = user.email || 'N/A'; // Jika tidak ada email pengguna, tampilkan 'N/A'
+            }
+        }
+
+        // Panggil fungsi getAccountAge saat halaman dimuat
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                displayUserInfo(user);
+                getAccountAge(user);
+            } else {
+                console.error("No user is signed in.");
+                // Handle authentication or redirect to login page
+            }
+        });
+
+        deleteAccountButton.addEventListener('click', () => {
+            const user = auth.currentUser;
+            const confirmation = confirmInput.value.trim();
+
+            if (confirmation === 'konfirmasi') {
+                if (user) {
+                    // Hapus data pengguna dari koleksi "profiles" di Firestore
+                    db.collection("profiles").doc(user.uid).delete()
+                    .then(() => {
+                        // Hapus akun pengguna dari Firebase Authentication
+                        user.delete()
+                        .then(() => {
+                            alert("Akun Anda telah dihapus.");
+                            // Redirect ke halaman lain atau lakukan tindakan lain setelah penghapusan akun
+                            window.location.href = "https://toko-privat-github-io.vercel.app";
+                        })
+                        .catch((error) => {
+                            console.error("Error deleting user:", error);
+                            alert("Terjadi kesalahan saat menghapus akun.");
+                        });
+                    })
+                    .catch((error) => {
+                        console.error("Error deleting user profile data:", error);
+                        alert("Terjadi kesalahan saat menghapus profil pengguna.");
+                    });
+                } else {
+                    alert("Tidak ada pengguna yang terautentikasi.");
+                }
+            } else {
+                alert("Konfirmasi tidak valid. Silakan ketik 'konfirmasi' untuk menghapus akun.");
+            }
+        });
+    </script>
+</body>
+</html>

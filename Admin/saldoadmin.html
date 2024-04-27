@@ -47,7 +47,7 @@
         }
 
         /* Button styling */
-        .approve-button, .reject-button {
+        .approve-button, .reject-button, .delete-all-button, .edit-button {
             background-color: #4CAF50;
             color: white;
             border: none;
@@ -62,15 +62,15 @@
             transition: background-color 0.3s ease;
         }
 
-        .approve-button:hover {
+        .approve-button:hover, .edit-button:hover {
             background-color: #45a049;
         }
 
-        .reject-button {
+        .reject-button:hover {
             background-color: #f44336;
         }
 
-        .reject-button:hover {
+        .delete-all-button:hover {
             background-color: #da190b;
         }
     </style>
@@ -94,6 +94,7 @@
         </table>
 
         <h2>Riwayat Top Up</h2>
+        <button class="delete-all-button" onclick="deleteAllHistory()">Hapus Semua</button>
         <table>
             <thead>
                 <tr>
@@ -107,12 +108,25 @@
                 <!-- Riwayat top up saldo akan ditampilkan di sini -->
             </tbody>
         </table>
+
+        <!-- Tambahkan tabel untuk menampilkan saldo semua pengguna -->
+        <h2>Saldo Semua Pengguna</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama Pengguna</th>
+                    <th>UID</th>
+                    <th>Saldo</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="user-balance-table-body">
+                <!-- Saldo semua pengguna akan ditampilkan di sini -->
+            </tbody>
+        </table>
     </div>
 
-
-
-
-    <!-- Script JavaScript untuk menampilkan data top up saldo dan mengubah status -->
+    <!-- Script JavaScript untuk menampilkan data top up saldo, riwayat, dan saldo semua pengguna -->
     <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
@@ -132,6 +146,41 @@
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore(app);
         const auth = firebase.auth();
+
+        // Function to display all user balances
+        function displayUserBalances(snapshot) {
+            const tableBody = document.getElementById('user-balance-table-body');
+            tableBody.innerHTML = '';
+            snapshot.forEach(doc => {
+                const userData = doc.data();
+                const { name, uid, balance } = userData;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${name}</td>
+                    <td>${uid}</td>
+                    <td>${balance}</td>
+                    <td><button class="edit-button" onclick="editBalance('${uid}', ${balance})">Edit</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Fetch all user balances
+        function fetchUserBalances() {
+            db.collection('profiles').get()
+            .then(snapshot => {
+                displayUserBalances(snapshot);
+            })
+            .catch(error => {
+                console.error("Error getting user balances:", error);
+            });
+        }
+
+        // Call fetchUserBalances when the page loads
+        window.onload = function() {
+            fetchUserBalances();
+        };
 
         // Fungsi untuk menampilkan data top up saldo
         function displayTopUpData(snapshot, tableBodyId, isHistory) {
@@ -177,9 +226,8 @@
         });
 
         // Mengubah status top up saldo menjadi berhasil dan mengirim saldo ke pengguna
-        function approveTopUp(docId, userId, amount) {
+        function approveTopUp(docId, uid, amount) {
             const topUpDocRef = db.collection('saldoPanel').doc(docId);
-            const userDocRef = db.collection('profiles').doc(userId);
 
             // Update status top up menjadi 'success'
             topUpDocRef.update({
@@ -187,7 +235,8 @@
             }).then(() => {
                 console.log("Status top up saldo berhasil diubah.");
 
-                // Menambahkan saldo ke akun pengguna
+                // Menambahkan saldo ke akun pengguna yang dituju
+                const userDocRef = db.collection('profiles').doc(uid);
                 userDocRef.get().then(doc => {
                     if (doc.exists) {
                         const userData = doc.data();
@@ -198,7 +247,7 @@
                         userDocRef.update({
                             balance: newBalance
                         }).then(() => {
-                            console.log("Saldo berhasil dikirim ke pengguna.");
+                            console.log("Saldo berhasil dikirim ke pengguna dengan UID:", uid);
                         }).catch(error => {
                             console.error("Error updating user balance:", error);
                         });
@@ -224,6 +273,40 @@
                 console.log("Status top up saldo ditolak.");
             }).catch(error => {
                 console.error("Error updating top up saldo status:", error);
+            });
+        }
+
+        // Menghapus semua riwayat top up
+        function deleteAllHistory() {
+            db.collection('saldoPanel').where('status', 'in', ['success', 'rejected']).get().then(snapshot => {
+                snapshot.forEach(doc => {
+                    doc.ref.delete();
+                });
+                console.log("Semua riwayat top up berhasil dihapus.");
+            }).catch(error => {
+                console.error("Error deleting all top up history:", error);
+            });
+        }
+
+        // Fungsi untuk mengedit saldo pengguna
+        function editBalance(uid, currentBalance) {
+            const newBalance = prompt("Masukkan saldo baru:", currentBalance);
+            if (newBalance !== null) {
+                // Panggil fungsi untuk menyimpan perubahan ke database
+                updateBalance(uid, parseInt(newBalance));
+            }
+        }
+
+        // Fungsi untuk menyimpan perubahan saldo ke dalam database
+        function updateBalance(uid, newBalance) {
+            const userDocRef = db.collection('profiles').doc(uid);
+            // Update saldo pengguna
+            userDocRef.update({
+                balance: newBalance
+            }).then(() => {
+                console.log("Saldo pengguna berhasil diperbarui dengan UID:", uid);
+            }).catch(error => {
+                console.error("Error updating user balance:", error);
             });
         }
     </script>

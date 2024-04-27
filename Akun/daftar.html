@@ -7,19 +7,22 @@
     <!-- Tambahkan skrip Firebase -->
     <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
     <!-- Konfigurasi Firebase Anda -->
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
-            authDomain: "toko-online-ku-8be4a.firebaseapp.com",
-            projectId: "toko-online-ku-8be4a",
-            storageBucket: "toko-online-ku-8be4a.appspot.com",
-            messagingSenderId: "714682286460",
-            appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
-            measurementId: "G-7RS1N1FT8Z"
-        };
+        // Konfigurasi Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCjhwIaN276iG1QB6aNQbNX1mfkvwrK1SQ",
+        authDomain: "toko-online-ku-8be4a.firebaseapp.com",
+        projectId: "toko-online-ku-8be4a",
+        storageBucket: "toko-online-ku-8be4a.appspot.com",
+        messagingSenderId: "714682286460",
+        appId: "1:714682286460:web:bfd1636ab9c83ef24824f9",
+        measurementId: "G-7RS1N1FT8Z"
+    };
         // Inisialisasi Firebase
-        firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
     </script>
     <style>
         /* Gaya untuk container */
@@ -133,24 +136,35 @@
         // Daftar akun dengan Firebase Authentication menggunakan email dan sandi
         firebase.auth().createUserWithEmailAndPassword(email, password)
             .then((userCredential) => {
-                // Daftar berhasil, tambahkan nama ke profil pengguna
+                // Daftar berhasil, dapatkan nama pengguna dari Firebase
                 const user = userCredential.user;
+                const displayName = user.displayName || name; // Ambil nama dari Firebase jika sudah ada, jika tidak, gunakan nama yang dimasukkan pengguna
+                // Update nama pengguna di Firebase
                 user.updateProfile({
-                    displayName: name
+                    displayName: displayName
                 }).then(() => {
-                    // Tampilkan pesan sukses
-                    alert('Pendaftaran berhasil. Selamat datang, ' + name + '!');
-                    // Reset formulir
-                    registrationForm.reset();
-                    // Arahkan ke halaman index.html
-                    window.location.href = "https://toko-privat-github-io.vercel.app";
+                    // Tambahkan data pengguna ke Firestore
+                    db.collection("profiles").doc(user.uid).set({
+                        name: displayName,
+                        uid: user.uid
+                    })
+                    .then(() => {
+                        // Tampilkan pesan sukses
+                        alert('Pendaftaran berhasil. Selamat datang, ' + displayName + '!');
+                        // Reset formulir
+                        registrationForm.reset();
+                        // Arahkan ke halaman index.html
+                        window.location.href = "https://toko-privat-github-io.vercel.app";
+                    })
+                    .catch((error) => {
+                        console.error("Error adding document: ", error);
+                    });
                 }).catch((error) => {
-                    console.error(error);
+                    console.error("Error updating profile: ", error);
                 });
             })
             .catch((error) => {
                 // Tangani kesalahan pendaftaran
-                var errorCode = error.code;
                 var errorMessage = error.message;
                 alert(errorMessage);
             });
@@ -168,13 +182,24 @@
             .then((result) => {
                 // Daftar berhasil, tampilkan nama pengguna
                 const user = result.user;
-                alert('Pendaftaran berhasil. Selamat datang, ' + user.displayName + '!');
-                // Arahkan ke halaman index.html
-                window.location.href = "https://toko-privat-github-io.vercel.app";
+                const displayName = user.displayName;
+                // Tambahkan pengguna ke koleksi profiles di Firestore
+                db.collection("profiles").doc(user.uid).set({
+                    name: displayName,
+                    uid: user.uid
+                })
+                .then(() => {
+                    // Tampilkan pesan sukses
+                    alert('Pendaftaran berhasil. Selamat datang, ' + displayName + '!');
+                    // Arahkan ke halaman index.html
+                    window.location.href = "https://toko-privat-github-io.vercel.app";
+                })
+                .catch((error) => {
+                    console.error("Error adding document: ", error);
+                });
             })
             .catch((error) => {
                 // Tangani kesalahan pendaftaran
-                var errorCode = error.code;
                 var errorMessage = error.message;
                 alert(errorMessage);
             });
